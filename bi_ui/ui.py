@@ -1,8 +1,12 @@
+from pathlib import Path
 from tkinter import Tk, Canvas, mainloop, SE, ttk, Label, Entry, Button, filedialog, END, \
-    messagebox, Menu, IntVar, StringVar
+    messagebox, Menu, IntVar, StringVar, Scrollbar
 
+import PIL
+import numpy
 from PIL import Image
 from PIL.ImageTk import PhotoImage
+from brilliantimagery.dng import DNG
 
 from bi_ui.default_settings import DefaultSettings
 
@@ -12,9 +16,12 @@ class UI:
     line_color = 'red'
     corner_radius = 2
 
-    def __init__(self):
+    def __init__(self, root):
+        # toolbar stuff
+        # https://www.youtube.com/watch?v=AYOs78NjYfc
+
         # set up window
-        self.root = Tk()
+        self.root = root
         self.root.geometry('800x500')
         self.root.resizable(width=False, height=False)
         self.root.title('Brilliant Imagery')
@@ -23,8 +30,7 @@ class UI:
         self.img = None
         self.point1 = None
         self.point2 = None
-        self.tab_ramp_stabilize = None
-        self.tab_renderer = None
+        # self.tab_renderer = None
 
         self._make_menu_bar()
 
@@ -50,9 +56,9 @@ class UI:
         file_menu.add_command(label='Open')
         file_menu.add_command(label='Save',
                               accelerator='Ctrl+S',
-                            command=lambda: print('Not Saved'))
+                              command=lambda: print('Not Saved'))
         file_menu.add_separator()
-        file_menu.add_command(label='Quit', command=quite_app)
+        file_menu.add_command(label='Exit', command=quite_app)
         self.menu.add_cascade(label='File', menu=file_menu)
 
         # ------ Font Menu ------
@@ -81,77 +87,110 @@ class UI:
 
         self.root.config(menu=self.menu)
 
-
     def _make_renderer_tab(self):
-        self.tab_renderer = ttk.Frame(self.tab_control)
-        self.tab_control.add(self.tab_renderer, text='Renderer')
+        # scroll bar
+        # https://www.youtube.com/watch?v=6-1XRnEl9pE
+        tab_renderer = ttk.Frame(self.tab_control)
+        self.tab_control.add(tab_renderer, text='Renderer')
         self.tab_control.pack(expand=1, fill='both')
+        scroll_bar = Scrollbar(tab_renderer)
+        self.renderer_canvas = Canvas(tab_renderer,
+                                      width=1000,
+                                      height=1000,
+                                      yscrollcommand=scroll_bar.set
+                                      )
+        self.renderer_canvas.grid(row=0, column=0, columnspan=2)
+        scroll_bar.config(command=self.renderer_canvas.yview)
+        scroll_bar.grid(row=0, column=0)
 
     def _make_ramper_tab(self):
         self.point1 = ()
         self.point2 = ()
 
-        self.tab_ramp_stabilize = ttk.Frame(self.tab_control)
-        self.tab_control.add(self.tab_ramp_stabilize, text='Ramp & Stabilize')
+        # set up tab
+        tab_ramp_stabilize = ttk.Frame(self.tab_control)
+        self.tab_control.add(tab_ramp_stabilize, text='Ramp & Stabilize')
         self.tab_control.pack(expand=1, fill='both')
 
-        self.canvas = Canvas(self.tab_ramp_stabilize,
+        # make image canvas
+        self.canvas = Canvas(tab_ramp_stabilize,
                              width=255,
                              height=255
                              )
         self.canvas.grid(row=0, column=0, columnspan=2)
 
+        # set up folder selector
         folder_selecter_row = 1
         folder_sslecter_column = 0
-        Label(self.tab_ramp_stabilize, text='Image folder:').grid(row=folder_selecter_row,
-                                                                  column=folder_sslecter_column)
-        self.folder_entry = Entry(self.tab_ramp_stabilize, width=70)
-        self.folder_entry.grid(row=folder_selecter_row, column=folder_sslecter_column+1)
-        folder_button = Button(self.tab_ramp_stabilize, text='Folder',
-                               command=lambda: self.select_folder(self.folder_entry))
-        folder_button.grid(row=folder_selecter_row, column=folder_sslecter_column+2)
+        Label(tab_ramp_stabilize,
+              text='Image folder:').grid(row=folder_selecter_row,
+                                         column=folder_sslecter_column)
+        self.folder_entry = Entry(tab_ramp_stabilize, width=70)
+        self.folder_entry.grid(row=folder_selecter_row, column=folder_sslecter_column + 1)
+        folder_button = Button(tab_ramp_stabilize,
+                               text='Folder',
+                               command=lambda: self._open_image(self.folder_entry))
+        folder_button.grid(row=folder_selecter_row, column=folder_sslecter_column + 2)
 
-        self.canvas.bind('<Button-1>', self.get_point)
+        self.canvas.bind('<Button-1>', self._draw_image)
 
-    def select_folder(self, entry):
+    def _open_image(self, entry):
         folder = filedialog.askdirectory(initialdir=self.default_settings.get('open_folder_dialog'),
                                          title='Select A Sequence Folder')
-        self.set_text(entry, folder)
+        self._set_text(entry, folder)
 
-    def set_text(self, entry, text):
+        p = Path(folder).glob('**/*')
+        reference_file = [x for x in p if x.is_file()][0]
+        dng = DNG(reference_file)
+        dng_image = dng.get_image([0, 0, 1, 1], 'thumbnail')
+        shape = dng_image.shape
+        dng_image = numpy.reshape(dng_image, dng_image.size, 'C')
+        dng_image = numpy.reshape(dng_image, (shape[2], shape[1], shape[0]), 'F')
+
+        img = PIL.Image.fromarray(dng_image.astype('uint8'), mode='RGB')
+        size = (255, int(255 * img.width / img.height))
+        img.thumbnail(size, Image.ANTIALIAS)
+
+        self.img = PhotoImage(img)
+
+        self._draw_image()
+
+    def _set_text(self, entry, text):
         entry.delete(0, END)
         entry.insert(0, text)
         return
 
-    def draw_image(self):
-        img = Image.open('ppm_F-18.ppm')
-        size = (255, int(255 * img.width / img.height))
-        img.thumbnail(size, Image.ANTIALIAS)
-        self.img = PhotoImage(img)
-
+    def _draw_image(self, click=None):
         self.canvas.create_image(self.img.width(), self.img.height(), image=self.img, anchor=SE)
 
-    def get_point(self, click):
-        if not self.point1:
+        self._get_point(click)
+        if self.point1:
+            self._draw_corner(self.point1)
+        if self.point2:
+            self._draw_corner(self.point2)
+            self.canvas.create_rectangle(*self.point1, *self.point2, outline=UI.line_color)
+
+    def _get_point(self, click):
+        if not click:
+            self.point1 = ()
+            self.point2 = ()
+        elif not self.point1:
             self.point1 = (click.x, click.y)
         elif not self.point2:
             self.point2 = (click.x, click.y)
         else:
             self.point1 = ()
             self.point2 = ()
-            self.draw_image()
 
-        self.draw_square()
+    # def _draw_square(self):
+    #     if self.point1:
+    #         self._draw_corner(self.point1)
+    #     if self.point2:
+    #         self._draw_corner(self.point2)
+    #     if self.point1 and self.point2:
+    #         self.canvas.create_rectangle(*self.point1, *self.point2, outline=UI.line_color)
 
-    def draw_square(self):
-        if self.point1:
-            self.draw_corner(self.point1)
-        if self.point2:
-            self.draw_corner(self.point2)
-        if self.point1 and self.point2:
-            self.canvas.create_rectangle(*self.point1, *self.point2, outline=UI.line_color)
-
-    def draw_corner(self, point):
+    def _draw_corner(self, point):
         _point1 = (max(0, point[0] - UI.corner_radius),
                    max(0, point[1] - UI.corner_radius))
         _point2 = (min(self.img.width(), point[0] + UI.corner_radius),
@@ -161,7 +200,7 @@ class UI:
 
 
 if __name__ == '__main__':
-    ui = UI()
-    ui.draw_image()
+    root = Tk()
+    ui = UI(root)
 
-    mainloop()
+    root.mainloop()

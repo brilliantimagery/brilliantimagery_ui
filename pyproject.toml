@@ -5,9 +5,9 @@ description = ""
 authors = ["Chad DeRosier <chad.derosier@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "3.8.*"
-brilliant-imagery = {path = "../brilliantimagery/dist/brilliant_imagery-20.1.0-py3-none-any.whl"}
+python = "^3.8"
 pillow = "^7.0.0"
+brilliant-imagery = {path = "../brilliantimagery/dist/brilliant-imagery-20.1.0.tar.gz"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
