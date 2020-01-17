@@ -6,7 +6,8 @@ import PIL
 import numpy
 from PIL import Image
 from PIL.ImageTk import PhotoImage
-from brilliantimagery.dng import DNG
+# from brilliantimagery.dng import DNG
+from brilliantimagery.sequence import Sequence
 
 from bi_ui.default_settings import DefaultSettings
 
@@ -25,6 +26,8 @@ class UI:
         self.root.geometry('800x500')
         self.root.resizable(width=False, height=False)
         self.root.title('Brilliant Imagery')
+
+        self.sequence = None
 
         self.canvas = None
         self.img = None
@@ -129,31 +132,30 @@ class UI:
         self.folder_entry.grid(row=folder_selecter_row, column=folder_sslecter_column + 1)
         folder_button = Button(tab_ramp_stabilize,
                                text='Folder',
-                               command=lambda: self._open_image(self.folder_entry))
+                               command=lambda: self._open_sequence(self.folder_entry))
         folder_button.grid(row=folder_selecter_row, column=folder_sslecter_column + 2)
 
         self.canvas.bind('<Button-1>', self._draw_image)
 
-    def _open_image(self, entry):
-        folder = filedialog.askdirectory(initialdir=self.default_settings.get('open_folder_dialog'),
-                                         title='Select A Sequence Folder')
-        self._set_text(entry, folder)
+    def _open_sequence(self, entry):
+        folder = self._open_folder(entry)
 
-        p = Path(folder).glob('**/*')
-        reference_file = [x for x in p if x.is_file()][0]
-        dng = DNG(reference_file)
-        dng_image = dng.get_image([0, 0, 1, 1], 'thumbnail')
-        shape = dng_image.shape
-        dng_image = numpy.reshape(dng_image, dng_image.size, 'C')
-        dng_image = numpy.reshape(dng_image, (shape[2], shape[1], shape[0]), 'F')
+        self.sequence = Sequence(folder)
+        img = self.sequence.get_reference_image(index_order='yxc')
 
-        img = PIL.Image.fromarray(dng_image.astype('uint8'), mode='RGB')
+        img = PIL.Image.fromarray(img.astype('uint8'), mode='RGB')
         size = (255, int(255 * img.width / img.height))
         img.thumbnail(size, Image.ANTIALIAS)
 
         self.img = PhotoImage(img)
 
         self._draw_image()
+
+    def _open_folder(self, entry):
+        folder = filedialog.askdirectory(initialdir=self.default_settings.get('open_folder_dialog'),
+                                         title='Select A Sequence Folder')
+        self._set_text(entry, folder)
+        return folder
 
     def _set_text(self, entry, text):
         entry.delete(0, END)
@@ -181,14 +183,6 @@ class UI:
         else:
             self.point1 = ()
             self.point2 = ()
-
-    # def _draw_square(self):
-    #     if self.point1:
-    #         self._draw_corner(self.point1)
-    #     if self.point2:
-    #         self._draw_corner(self.point2)
-    #     if self.point1 and self.point2:
-    #         self.canvas.create_rectangle(*self.point1, *self.point2, outline=UI.line_color)
 
     def _draw_corner(self, point):
         _point1 = (max(0, point[0] - UI.corner_radius),
