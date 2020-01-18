@@ -1,6 +1,6 @@
 from pathlib import Path
 from tkinter import Tk, Canvas, mainloop, SE, ttk, Label, Entry, Button, filedialog, END, \
-    messagebox, Menu, IntVar, StringVar, Scrollbar
+    messagebox, Menu, IntVar, StringVar, Scrollbar, Checkbutton, W, Frame, LabelFrame, NW
 
 import PIL
 import numpy
@@ -42,7 +42,7 @@ class UI:
 
         # set up tabs
         self.tab_control = ttk.Notebook(self.root)
-        self._make_ramper_tab()
+        self._make_ramp_stabilize_tab()
         self._make_renderer_tab()
 
     def _make_menu_bar(self):
@@ -105,8 +105,9 @@ class UI:
         self.renderer_canvas.grid(row=0, column=0, columnspan=2)
         scroll_bar.config(command=self.renderer_canvas.yview)
         scroll_bar.grid(row=0, column=0)
+        # pass
 
-    def _make_ramper_tab(self):
+    def _make_ramp_stabilize_tab(self):
         self.point1 = ()
         self.point2 = ()
 
@@ -114,6 +115,7 @@ class UI:
         tab_ramp_stabilize = ttk.Frame(self.tab_control)
         self.tab_control.add(tab_ramp_stabilize, text='Ramp & Stabilize')
         self.tab_control.pack(expand=1, fill='both')
+        # self.tab_control.grid(row=0, column=0)
 
         # make image canvas
         self.canvas = Canvas(tab_ramp_stabilize,
@@ -121,21 +123,45 @@ class UI:
                              height=255
                              )
         self.canvas.grid(row=0, column=0, columnspan=2)
+        self.canvas.bind('<Button-1>', self._draw_image)
+
+        # make function stuff
+        procedures_frame = LabelFrame(tab_ramp_stabilize, text='Operations To Perform')
+        procedures_frame.grid(row=0, column=2, padx=5, pady=5, sticky=NW)
+        ramp_minus = IntVar()
+        Checkbutton(procedures_frame,
+                    text="Ramp Linear Properties",
+                    variable=ramp_minus).grid(row=0, column=0, sticky=W)
+        exposure = IntVar()
+        Checkbutton(procedures_frame,
+                    text="Ramp Exposure",
+                    variable=exposure).grid(row=1, column=0, sticky=W)
+        stabilize = IntVar()
+        Checkbutton(procedures_frame,
+                    text="Stabilize",
+                    variable=stabilize).grid(row=2, column=0, sticky=W)
 
         # set up folder selector
-        folder_selecter_row = 1
-        folder_sslecter_column = 0
+        folder_selector_row = 2
+        folder_sslector_column = 0
         Label(tab_ramp_stabilize,
-              text='Image folder:').grid(row=folder_selecter_row,
-                                         column=folder_sslecter_column)
+              text='Image folder:').grid(row=folder_selector_row,
+                                         column=folder_sslector_column)
         self.folder_entry = Entry(tab_ramp_stabilize, width=70)
-        self.folder_entry.grid(row=folder_selecter_row, column=folder_sslecter_column + 1)
+        self.folder_entry.grid(row=folder_selector_row,
+                               column=folder_sslector_column + 1,
+                               columnspan=2)
         folder_button = Button(tab_ramp_stabilize,
                                text='Folder',
                                command=lambda: self._open_sequence(self.folder_entry))
-        folder_button.grid(row=folder_selecter_row, column=folder_sslecter_column + 2)
+        folder_button.grid(row=folder_selector_row, column=folder_sslector_column + 3, sticky=W)
 
-        self.canvas.bind('<Button-1>', self._draw_image)
+        process_button = Button(tab_ramp_stabilize,
+                                text='Process',
+                                command=lambda ramp, exp, stab: self._process)
+        process_button.grid(row=folder_selector_row+1, column=0, sticky=W, padx=10, pady=10)
+
+
 
     def _open_sequence(self, entry):
         folder = self._open_folder(entry)
