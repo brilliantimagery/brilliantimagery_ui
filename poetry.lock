@@ -435,7 +435,7 @@ babel = [
     {file = "Babel-2.8.0.tar.gz", hash = "sha256:1aac2ae2d0d8ea368fa90906567f5c08463d98ade155c0c4bfedd6a0f7160e38"},
 ]
 brilliant-imagery = [
-    {file = "brilliant-imagery-20.1.0.tar.gz", hash = "sha256:89d123b303f2df63261e1ab4e69bdd9d54008b83b55b07b2333447fa34921f9f"},
+    {file = "brilliant-imagery-20.1.0.tar.gz", hash = "sha256:c976b2b94bcc74836568b13255f6bdaecafbd935425abdb6af5d538a71edee09"},
 ]
 certifi = [
     {file = "certifi-2019.11.28-py2.py3-none-any.whl", hash = "sha256:017c25db2a153ce562900032d5bc68e9f191e44e9a0f762f373977de9df1fbb3"},

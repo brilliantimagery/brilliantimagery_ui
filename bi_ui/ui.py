@@ -1,12 +1,11 @@
-from pathlib import Path
-from tkinter import Tk, Canvas, mainloop, SE, ttk, Label, Entry, Button, filedialog, END, \
-    messagebox, Menu, IntVar, StringVar, Scrollbar, Checkbutton, W, Frame, LabelFrame, NW
+from tkinter import Tk, Canvas, SE, ttk, Label, Entry, Button, filedialog, END, \
+    messagebox, Menu, IntVar, StringVar, Scrollbar, Checkbutton, W, LabelFrame, NW
 
+import numpy as np
 import PIL
-import numpy
 from PIL import Image
 from PIL.ImageTk import PhotoImage
-# from brilliantimagery.dng import DNG
+from brilliantimagery.dng import DNG
 from brilliantimagery.sequence import Sequence
 
 from bi_ui.default_settings import DefaultSettings
@@ -30,7 +29,7 @@ class UI:
         self.sequence = None
 
         self.canvas = None
-        self.img = None
+        self.image = None
         self.point1 = None
         self.point2 = None
         # self.tab_renderer = None
@@ -98,14 +97,25 @@ class UI:
         self.tab_control.pack(expand=1, fill='both')
         scroll_bar = Scrollbar(tab_renderer)
         self.renderer_canvas = Canvas(tab_renderer,
-                                      width=1000,
-                                      height=1000,
-                                      yscrollcommand=scroll_bar.set
+                                      width=500,
+                                      height=350,
+                                      yscrollcommand=scroll_bar.set,
                                       )
-        self.renderer_canvas.grid(row=0, column=0, columnspan=2)
+        self.renderer_canvas.grid(row=0, column=0, columnspan=3)
         scroll_bar.config(command=self.renderer_canvas.yview)
         scroll_bar.grid(row=0, column=0)
         # pass
+        Label(tab_renderer,
+              text='Image folder:').grid(row=1,
+                                         column=0)
+        file_entry = Entry(tab_renderer, width=70)
+        file_entry.grid(row=1,
+                        column=1,
+                        columnspan=2)
+        folder_button = Button(tab_renderer,
+                               text='File',
+                               command=lambda: self._open_image(file_entry))
+        folder_button.grid(row=1, column=3, sticky=W, padx=10)
 
     def _make_ramp_stabilize_tab(self):
         self.point1 = ()
@@ -128,18 +138,18 @@ class UI:
         # make function stuff
         procedures_frame = LabelFrame(tab_ramp_stabilize, text='Operations To Perform')
         procedures_frame.grid(row=0, column=2, padx=5, pady=5, sticky=NW)
-        ramp_minus = IntVar()
+        ramp = IntVar()
         Checkbutton(procedures_frame,
                     text="Ramp Linear Properties",
-                    variable=ramp_minus).grid(row=0, column=0, sticky=W)
-        exposure = IntVar()
+                    variable=ramp).grid(row=0, column=0, sticky=W)
+        exp = IntVar()
         Checkbutton(procedures_frame,
                     text="Ramp Exposure",
-                    variable=exposure).grid(row=1, column=0, sticky=W)
-        stabilize = IntVar()
+                    variable=exp).grid(row=1, column=0, sticky=W)
+        stab = IntVar()
         Checkbutton(procedures_frame,
                     text="Stabilize",
-                    variable=stabilize).grid(row=2, column=0, sticky=W)
+                    variable=stab).grid(row=2, column=0, sticky=W)
 
         # set up folder selector
         folder_selector_row = 2
@@ -147,41 +157,106 @@ class UI:
         Label(tab_ramp_stabilize,
               text='Image folder:').grid(row=folder_selector_row,
                                          column=folder_sslector_column)
-        self.folder_entry = Entry(tab_ramp_stabilize, width=70)
-        self.folder_entry.grid(row=folder_selector_row,
-                               column=folder_sslector_column + 1,
-                               columnspan=2)
+        folder_entry = Entry(tab_ramp_stabilize, width=70)
+        folder_entry.grid(row=folder_selector_row,
+                          column=folder_sslector_column + 1,
+                          columnspan=2)
         folder_button = Button(tab_ramp_stabilize,
                                text='Folder',
-                               command=lambda: self._open_sequence(self.folder_entry))
+                               command=lambda: self._open_sequence(folder_entry))
         folder_button.grid(row=folder_selector_row, column=folder_sslector_column + 3, sticky=W)
 
         process_button = Button(tab_ramp_stabilize,
                                 text='Process',
-                                command=lambda ramp, exp, stab: self._process)
-        process_button.grid(row=folder_selector_row+1, column=0, sticky=W, padx=10, pady=10)
+                                command=lambda: self._process(ramp.get(), exp.get(), stab.get()))
+        process_button.grid(row=folder_selector_row + 1, column=0, sticky=W, padx=10, pady=10)
 
+    def _process(self, ramp, exposure, stabilize):
+        if not self.point1 or not self.point2 or not self.sequence or not \
+                (ramp or exposure or stabilize):
+            messagebox.showerror('Oops!', "You didn't select 2 points, enter an "
+                                          "image, and select actions to perform")
+            return None
 
+        rectangle = (min(self.point1[0], self.point2[0]), min(self.point1[1], self.point2[1]),
+                     max(self.point1[0], self.point2[0]), max(self.point1[1], self.point2[1]))
+        rectangle = [rectangle[0] / self.image.width(), rectangle[1] / self.image.height(),
+                     rectangle[2] / self.image.width(), rectangle[3] / self.image.height()]
+
+        if ramp and not exposure and not stabilize:
+            self.sequence.ramp_minus_exmpsure()
+        elif not ramp and exposure and not stabilize:
+            self.sequence.ramp_exposure(rectangle)
+        elif not ramp and not exposure and stabilize:
+            self.sequence.stabilize(rectangle)
+        elif ramp and exposure and not stabilize:
+            self.sequence.ramp(rectangle)
+        elif not ramp and exposure and stabilize:
+            self.sequence.ramp_exposure_and_stabilize(rectangle)
+        elif ramp and not exposure and stabilize:
+            self.sequence.ramp_minus_exposure_plus_stabilize(rectangle)
+        elif ramp and exposure and stabilize:
+            self.sequence.ramp_and_stabilize(rectangle)
+
+        self.sequence.save()
 
     def _open_sequence(self, entry):
         folder = self._open_folder(entry)
 
         self.sequence = Sequence(folder)
-        img = self.sequence.get_reference_image(index_order='yxc')
+        image = self.sequence.get_reference_image(index_order='yxc')
 
-        img = PIL.Image.fromarray(img.astype('uint8'), mode='RGB')
-        size = (255, int(255 * img.width / img.height))
-        img.thumbnail(size, Image.ANTIALIAS)
+        image = PIL.Image.fromarray(image.astype('uint8'), mode='RGB')
+        size = (255, int(255 * image.width / image.height))
+        image.thumbnail(size, Image.ANTIALIAS)
 
-        self.img = PhotoImage(img)
+        self.image = PhotoImage(image)
 
         self._draw_image()
 
     def _open_folder(self, entry):
         folder = filedialog.askdirectory(initialdir=self.default_settings.get('open_folder_dialog'),
                                          title='Select A Sequence Folder')
+        if not folder:
+            return
+
         self._set_text(entry, folder)
         return folder
+
+    def _open_image(self, entry):
+        file = self._open_file(entry)
+
+        if not file:
+            return
+        dng = DNG(file)
+        image_array = dng.get_image() * 255
+        # image_array = dng.get_image([0.5, 0.5, 0.75, 0.75]) * 255
+
+        shape = image_array.shape
+        image_array = np.reshape(image_array, image_array.size, 'C')
+        image_array = np.reshape(image_array, (shape[2], shape[1], shape[0]), 'F')
+
+        image = PIL.Image.fromarray(image_array.astype('uint8'), mode='RGB')
+        size = (500, int(500 * image.width / image.height))
+        image.thumbnail(size, Image.ANTIALIAS)
+
+        self.image_rendered = PhotoImage(image)
+        self.renderer_canvas.create_image(self.image_rendered.width(),
+                                          self.image_rendered.height(),
+                                          image=self.image_rendered,
+                                          anchor=SE)
+
+    def _open_file(self, entry):
+        file = filedialog.askopenfilename(
+            initialdir=self.default_settings.get('open_folder_dialog'),
+            title='Select an Image to Render',
+            filetypes=(('dng files', '*.dng'),
+                       ('all files', '*.*')))
+        if not file:
+            return
+
+        self._set_text(entry, file)
+        return file
 
     def _set_text(self, entry, text):
         entry.delete(0, END)
@@ -189,7 +264,8 @@ class UI:
         return
 
     def _draw_image(self, click=None):
-        self.canvas.create_image(self.img.width(), self.img.height(), image=self.img, anchor=SE)
+        self.canvas.create_image(self.image.width(), self.image.height(), image=self.image,
+                                 anchor=SE)
 
         self._get_point(click)
         if self.point1:
@@ -213,8 +289,8 @@ class UI:
     def _draw_corner(self, point):
         _point1 = (max(0, point[0] - UI.corner_radius),
                    max(0, point[1] - UI.corner_radius))
-        _point2 = (min(self.img.width(), point[0] + UI.corner_radius),
-                   min(self.img.height(), point[1] + UI.corner_radius))
+        _point2 = (min(self.image.width(), point[0] + UI.corner_radius),
+                   min(self.image.height(), point[1] + UI.corner_radius))
 
         self.canvas.create_rectangle(*_point1, *_point2, **UI.box_colors)
 
