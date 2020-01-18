@@ -1,7 +1,7 @@
 from pathlib import Path
 from tkinter import Tk, Canvas, SE, ttk, Label, Entry, Button, filedialog, END, \
     messagebox, Menu, IntVar, StringVar, Scrollbar, Checkbutton, W, LabelFrame, NW, HORIZONTAL, E, \
-    VERTICAL, Frame, LEFT, BOTH, Y, RIGHT
+    VERTICAL, Frame, LEFT, BOTH, Y, RIGHT, BOTTOM, X
 
 import numpy as np
 import PIL
@@ -109,14 +109,17 @@ class UI:
         frame = Frame(tab_renderer)
         frame.grid(row=1, column=0, columnspan=3)
         self.renderer_canvas = Canvas(frame, width=500, height=350,
-                                      scrollregion=(0, 0, 500, 500))
-        # yscrollcommand=scroll_bar.set)
+                                      scrollregion=(0, 0, 500, 350))
+        horizontal_scroll_bar = Scrollbar(frame, orient=HORIZONTAL)
+        vertical_scroll_bar = Scrollbar(frame, orient=VERTICAL)
+        horizontal_scroll_bar.pack(side=BOTTOM, fill=X)
+        vertical_scroll_bar.pack(side=RIGHT, fill=Y)
+        horizontal_scroll_bar.config(command=self.renderer_canvas.xview)
+        vertical_scroll_bar.config(command=self.renderer_canvas.yview)
+
         self.renderer_canvas.pack(side=LEFT, expand=True, fill=BOTH)
-        scroll_bar = Scrollbar(frame, orient=VERTICAL)
-        # scroll_bar.grid(row=0, column=100, rowspan=100, columnspan=100, sticky=E)
-        scroll_bar.pack(side=RIGHT, fill=Y)
-        scroll_bar.config(command=self.renderer_canvas.yview)
-        self.renderer_canvas.config(yscrollcommand=scroll_bar.set)
+        self.renderer_canvas.config(xscrollcommand=horizontal_scroll_bar.set,
+                                    yscrollcommand=vertical_scroll_bar.set)
 
     def _make_ramp_stabilize_tab(self):
         self.point1 = ()
@@ -237,21 +240,19 @@ class UI:
             return
         dng = DNG(file)
         image_array = dng.get_image() * 255
-        # image_array = dng.get_image([0.5, 0.5, 0.75, 0.75]) * 255
 
         shape = image_array.shape
         image_array = np.reshape(image_array, image_array.size, 'C')
         image_array = np.reshape(image_array, (shape[2], shape[1], shape[0]), 'F')
 
         image = PIL.Image.fromarray(image_array.astype('uint8'), mode='RGB')
-        # size = (500, int(500 * image.width / image.height))
-        # image.thumbnail(size, Image.ANTIALIAS)
 
         self.image_rendered = PhotoImage(image)
         self.renderer_canvas.create_image(self.image_rendered.width(),
                                           self.image_rendered.height(),
                                           image=self.image_rendered,
                                           anchor=SE)
+        self.renderer_canvas.config(scrollregion=(0, 0, image.width, image.height))
 
     def _open_file(self, entry):
         file = filedialog.askopenfilename(
