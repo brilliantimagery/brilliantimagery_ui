@@ -1,5 +1,7 @@
+from pathlib import Path
 from tkinter import Tk, Canvas, SE, ttk, Label, Entry, Button, filedialog, END, \
-    messagebox, Menu, IntVar, StringVar, Scrollbar, Checkbutton, W, LabelFrame, NW
+    messagebox, Menu, IntVar, StringVar, Scrollbar, Checkbutton, W, LabelFrame, NW, HORIZONTAL, E, \
+    VERTICAL, Frame, LEFT, BOTH, Y, RIGHT
 
 import numpy as np
 import PIL
@@ -22,9 +24,10 @@ class UI:
 
         # set up window
         self.root = root
-        self.root.geometry('800x500')
-        self.root.resizable(width=False, height=False)
+        self.root.geometry('600x500')
+        # self.root.resizable(width=False, height=False)
         self.root.title('Brilliant Imagery')
+        self.root.iconbitmap(Path('.') / 'logo.ico')
 
         self.sequence = None
 
@@ -95,27 +98,25 @@ class UI:
         tab_renderer = ttk.Frame(self.tab_control)
         self.tab_control.add(tab_renderer, text='Renderer')
         self.tab_control.pack(expand=1, fill='both')
-        scroll_bar = Scrollbar(tab_renderer)
-        self.renderer_canvas = Canvas(tab_renderer,
-                                      width=500,
-                                      height=350,
-                                      yscrollcommand=scroll_bar.set,
-                                      )
-        self.renderer_canvas.grid(row=0, column=0, columnspan=3)
-        scroll_bar.config(command=self.renderer_canvas.yview)
-        scroll_bar.grid(row=0, column=0)
-        # pass
-        Label(tab_renderer,
-              text='Image folder:').grid(row=1,
-                                         column=0)
+
+        Label(tab_renderer, text='Image Path:').grid(row=0, column=0)
         file_entry = Entry(tab_renderer, width=70)
-        file_entry.grid(row=1,
-                        column=1,
-                        columnspan=2)
-        folder_button = Button(tab_renderer,
-                               text='File',
+        file_entry.grid(row=0, column=1, columnspan=2)
+        folder_button = Button(tab_renderer, text='File',
                                command=lambda: self._open_image(file_entry))
-        folder_button.grid(row=1, column=3, sticky=W, padx=10)
+        folder_button.grid(row=0, column=3, sticky=W, padx=10)
+
+        frame = Frame(tab_renderer)
+        frame.grid(row=1, column=0, columnspan=3)
+        self.renderer_canvas = Canvas(frame, width=500, height=350,
+                                      scrollregion=(0, 0, 500, 500))
+        # yscrollcommand=scroll_bar.set)
+        self.renderer_canvas.pack(side=LEFT, expand=True, fill=BOTH)
+        scroll_bar = Scrollbar(frame, orient=VERTICAL)
+        # scroll_bar.grid(row=0, column=100, rowspan=100, columnspan=100, sticky=E)
+        scroll_bar.pack(side=RIGHT, fill=Y)
+        scroll_bar.config(command=self.renderer_canvas.yview)
+        self.renderer_canvas.config(yscrollcommand=scroll_bar.set)
 
     def _make_ramp_stabilize_tab(self):
         self.point1 = ()
@@ -139,16 +140,13 @@ class UI:
         procedures_frame = LabelFrame(tab_ramp_stabilize, text='Operations To Perform')
         procedures_frame.grid(row=0, column=2, padx=5, pady=5, sticky=NW)
         ramp = IntVar()
-        Checkbutton(procedures_frame,
-                    text="Ramp Linear Properties",
+        Checkbutton(procedures_frame, text="Ramp Linear Properties",
                     variable=ramp).grid(row=0, column=0, sticky=W)
         exp = IntVar()
-        Checkbutton(procedures_frame,
-                    text="Ramp Exposure",
+        Checkbutton(procedures_frame, text="Ramp Exposure",
                     variable=exp).grid(row=1, column=0, sticky=W)
         stab = IntVar()
-        Checkbutton(procedures_frame,
-                    text="Stabilize",
+        Checkbutton(procedures_frame, text="Stabilize",
                     variable=stab).grid(row=2, column=0, sticky=W)
 
         # set up folder selector
@@ -168,10 +166,15 @@ class UI:
 
         process_button = Button(tab_ramp_stabilize,
                                 text='Process',
-                                command=lambda: self._process(ramp.get(), exp.get(), stab.get()))
+                                command=lambda: self._process(ramp.get(), exp.get(),
+                                                              stab.get(), msg.get()))
         process_button.grid(row=folder_selector_row + 1, column=0, sticky=W, padx=10, pady=10)
 
-    def _process(self, ramp, exposure, stabilize):
+        msg = IntVar()
+        Checkbutton(tab_ramp_stabilize, text="Show MessageBox when done.",
+                    variable=msg).grid(row=folder_selector_row + 1, column=1, sticky=W)
+
+    def _process(self, ramp, exposure, stabilize, show_finished):
         if not self.point1 or not self.point2 or not self.sequence or not \
                 (ramp or exposure or stabilize):
             messagebox.showerror('Oops!', "You didn't select 2 points, enter an "
@@ -199,6 +202,10 @@ class UI:
             self.sequence.ramp_and_stabilize(rectangle)
 
         self.sequence.save()
+
+        self._draw_image()
+
+        messagebox.showinfo('Done', 'All done!')
 
     def _open_sequence(self, entry):
         folder = self._open_folder(entry)
@@ -237,8 +244,8 @@ class UI:
         image_array = np.reshape(image_array, (shape[2], shape[1], shape[0]), 'F')
 
         image = PIL.Image.fromarray(image_array.astype('uint8'), mode='RGB')
-        size = (500, int(500 * image.width / image.height))
-        image.thumbnail(size, Image.ANTIALIAS)
+        # size = (500, int(500 * image.width / image.height))
+        # image.thumbnail(size, Image.ANTIALIAS)
 
         self.image_rendered = PhotoImage(image)
         self.renderer_canvas.create_image(self.image_rendered.width(),
@@ -296,7 +303,8 @@ class UI:
 
 
 if __name__ == '__main__':
-    root = Tk()
-    ui = UI(root)
-
-    root.mainloop()
+    # root = Tk()
+    # ui = UI(root)
+    # root.mainloop()
+    ui = UI(Tk())
+    ui.root.mainloop()
