@@ -1,7 +1,7 @@
 from pathlib import Path
 from tkinter import Tk, Canvas, SE, ttk, Label, Entry, Button, filedialog, END, \
-    messagebox, Menu, IntVar, StringVar, Scrollbar, Checkbutton, W, LabelFrame, NW, HORIZONTAL, E, \
-    VERTICAL, Frame, LEFT, BOTH, Y, RIGHT, BOTTOM, X
+    messagebox, Menu, IntVar, StringVar, Scrollbar, Checkbutton, W, LabelFrame, NW, HORIZONTAL, \
+    VERTICAL, Frame, LEFT, BOTH, Y, RIGHT, BOTTOM, X, TOP
 
 import numpy as np
 import PIL
@@ -93,25 +93,25 @@ class UI:
         self.root.config(menu=self.menu)
 
     def _make_renderer_tab(self):
-        # scroll bar
-        # https://www.youtube.com/watch?v=6-1XRnEl9pE
         tab_renderer = ttk.Frame(self.tab_control)
         self.tab_control.add(tab_renderer, text='Renderer')
         self.tab_control.pack(expand=1, fill='both')
 
-        Label(tab_renderer, text='Image Path:').grid(row=0, column=0)
-        file_entry = Entry(tab_renderer, width=70)
-        file_entry.grid(row=0, column=1, columnspan=2)
-        folder_button = Button(tab_renderer, text='File',
+        interface_frame = Frame(tab_renderer)
+        interface_frame.pack(side=TOP, anchor=W)
+        Label(interface_frame, text='Image Path:').grid(row=0, column=0, padx=10, pady=10)
+        file_entry = Entry(interface_frame, width=70)
+        file_entry.grid(row=0, column=1)
+        folder_button = Button(interface_frame, text='File',
                                command=lambda: self._open_image(file_entry))
-        folder_button.grid(row=0, column=3, sticky=W, padx=10)
+        folder_button.grid(row=0, column=2, padx=10)
 
-        frame = Frame(tab_renderer)
-        frame.grid(row=1, column=0, columnspan=3)
-        self.renderer_canvas = Canvas(frame, width=500, height=350,
+        image_frame = Frame(tab_renderer)
+        image_frame.pack(expand=1, fill='both')
+        self.renderer_canvas = Canvas(image_frame, width=500, height=350,
                                       scrollregion=(0, 0, 500, 350))
-        horizontal_scroll_bar = Scrollbar(frame, orient=HORIZONTAL)
-        vertical_scroll_bar = Scrollbar(frame, orient=VERTICAL)
+        horizontal_scroll_bar = Scrollbar(image_frame, orient=HORIZONTAL)
+        vertical_scroll_bar = Scrollbar(image_frame, orient=VERTICAL)
         horizontal_scroll_bar.pack(side=BOTTOM, fill=X)
         vertical_scroll_bar.pack(side=RIGHT, fill=Y)
         horizontal_scroll_bar.config(command=self.renderer_canvas.xview)
