@@ -43,10 +43,10 @@ pytz = ">=2015.7"
 [[package]]
 category = "main"
 description = "A python DNG editing package."
-name = "brilliant-imagery"
+name = "brilliantimagery"
 optional = false
 python-versions = ">=3.8,<4.0"
-version = "20.1.0"
+version = "0.1.0"
 
 [package.dependencies]
 Sphinx = ">=2.3.1,<3.0.0"
@@ -54,11 +54,6 @@ cython = ">=0.29.14,<0.30.0"
 numpy = ">=1.18.1,<2.0.0"
 opencv-contrib-python = ">=4.1.2,<5.0.0"
 tqdm = ">=4.41.1,<5.0.0"
-
-[package.source]
-reference = ""
-type = "file"
-url = "../brilliantimagery/dist/brilliant-imagery-20.1.0.tar.gz"
 
 [[package]]
 category = "main"
@@ -414,7 +409,7 @@ python-versions = "*"
 version = "0.1.8"
 
 [metadata]
-content-hash = "af57ef56de4248ad491d5796b4d78e7361083b410aac5f245864b63eb8e15952"
+content-hash = "348366e99c1d0928b5a46e2ee87b3e77bde6da934b8acb04fd3f47761c51497f"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -434,8 +429,10 @@ babel = [
     {file = "Babel-2.8.0-py2.py3-none-any.whl", hash = "sha256:d670ea0b10f8b723672d3a6abeb87b565b244da220d76b4dba1b66269ec152d4"},
     {file = "Babel-2.8.0.tar.gz", hash = "sha256:1aac2ae2d0d8ea368fa90906567f5c08463d98ade155c0c4bfedd6a0f7160e38"},
 ]
-brilliant-imagery = [
-    {file = "brilliant-imagery-20.1.0.tar.gz", hash = "sha256:c976b2b94bcc74836568b13255f6bdaecafbd935425abdb6af5d538a71edee09"},
+brilliantimagery = [
+    {file = "brilliantimagery-0.1.0-cp38-cp38m-win32.whl", hash = "sha256:ed013c1536235f23aee2d47ca49693d7b7bc3f0a07a1ced8053c14e5e98f9d28"},
+    {file = "brilliantimagery-0.1.0.tar.gz", hash = "sha256:fbe20085b17f9abcd9812db7e4b73fec5abfa910ff48789bfeaa8195219586b8"},
+    {file = "brilliantimagery1-0.1.0-cp38-cp38m-win32.whl", hash = "sha256:77a5e3fb60abd8727ea236c68a28a1bb1710f0732b580de0ed340c2bbfbf7c87"},
 ]
 certifi = [
     {file = "certifi-2019.11.28-py2.py3-none-any.whl", hash = "sha256:017c25db2a153ce562900032d5bc68e9f191e44e9a0f762f373977de9df1fbb3"},

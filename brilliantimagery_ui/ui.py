@@ -7,10 +7,11 @@ import numpy as np
 import PIL
 from PIL import Image
 from PIL.ImageTk import PhotoImage
+import brilliantimagery
 from brilliantimagery.dng import DNG
 from brilliantimagery.sequence import Sequence
 
-from bi_ui.default_settings import DefaultSettings
+from brilliantimagery_ui.default_settings import DefaultSettings
 
 
 class UI:
@@ -24,7 +25,7 @@ class UI:
 
         # set up window
         self.root = root
-        self.root.geometry('600x500')
+        self.root.geometry('600x400')
         # self.root.resizable(width=False, height=False)
         self.root.title('Brilliant Imagery')
         self.root.iconbitmap(Path('.') / 'logo.ico')
@@ -58,37 +59,48 @@ class UI:
 
         # ------ File Menu ------
         file_menu = Menu(self.menu, tearoff=0)
-        file_menu.add_command(label='Open')
-        file_menu.add_command(label='Save',
-                              accelerator='Ctrl+S',
-                              command=lambda: print('Not Saved'))
-        file_menu.add_separator()
+        # file_menu.add_command(label='Open')
+        # file_menu.add_command(label='Save',
+        #                       accelerator='Ctrl+S',
+        #                       command=lambda: print('Not Saved'))
+        # file_menu.add_separator()
         file_menu.add_command(label='Exit', command=quite_app)
         self.menu.add_cascade(label='File', menu=file_menu)
 
         # ------ Font Menu ------
-        text_font = StringVar()
-        text_font.set('Times')
+        # text_font = StringVar()
+        # text_font.set('Times')
+        #
+        # def change_font(event=None):
+        #     print(f'Font Picked: {text_font.get()}')
+        #
+        # font_menu = Menu(self.menu, tearoff=0)
+        # font_menu.add_radiobutton(label='Times', variable=text_font, command=change_font)
+        #
+        # font_menu.add_radiobutton(label='Courier', variable=text_font, command=change_font)
+        #
+        # font_menu.add_radiobutton(label='Ariel', variable=text_font, command=change_font)
+        #
+        # # ------ View Menu ------
+        # view_menu = Menu(self.menu, tearoff=0)
+        #
+        # line_numbers = IntVar()
+        # line_numbers.set(1)
+        #
+        # view_menu.add_checkbutton(label='Show Numbers', variable=line_numbers)
+        # view_menu.add_cascade(label='Fonts', menu=font_menu)
+        # self.menu.add_cascade(label='View', menu=view_menu)
 
-        def change_font(event=None):
-            print(f'Font Picked: {text_font.get()}')
-
-        font_menu = Menu(self.menu, tearoff=0)
-        font_menu.add_radiobutton(label='Times', variable=text_font, command=change_font)
-
-        font_menu.add_radiobutton(label='Courier', variable=text_font, command=change_font)
-
-        font_menu.add_radiobutton(label='Ariel', variable=text_font, command=change_font)
-
-        # ------ View Menu ------
-        view_menu = Menu(self.menu, tearoff=0)
-
-        line_numbers = IntVar()
-        line_numbers.set(1)
-
-        view_menu.add_checkbutton(label='Show Numbers', variable=line_numbers)
-        view_menu.add_cascade(label='Fonts', menu=font_menu)
-        self.menu.add_cascade(label='View', menu=view_menu)
+        # --------- Help Menu --------
+        help_menu = Menu(self.menu, tearoff=0)
+        help_menu.add_command(label='About',
+                              command=lambda: messagebox.showinfo('About',
+                                                                  f"BrilliantImagery UI\n\n"
+                                                                  f"Version: "
+                                                                  f"{brilliantimagery.__version__}"
+                                                                  f"\nGo to brilliantimagery.org "
+                                                                  f"for more info."))
+        self.menu.add_cascade(label='Help', menu=help_menu)
 
         self.root.config(menu=self.menu)
 
@@ -157,7 +169,8 @@ class UI:
         folder_sslector_column = 0
         Label(tab_ramp_stabilize,
               text='Image folder:').grid(row=folder_selector_row,
-                                         column=folder_sslector_column)
+                                         column=folder_sslector_column,
+                                         padx=10)
         folder_entry = Entry(tab_ramp_stabilize, width=70)
         folder_entry.grid(row=folder_selector_row,
                           column=folder_sslector_column + 1,
@@ -165,7 +178,9 @@ class UI:
         folder_button = Button(tab_ramp_stabilize,
                                text='Folder',
                                command=lambda: self._open_sequence(folder_entry))
-        folder_button.grid(row=folder_selector_row, column=folder_sslector_column + 3, sticky=W)
+        folder_button.grid(row=folder_selector_row,
+                           column=folder_sslector_column + 3,
+                           sticky=W, padx=10)
 
         process_button = Button(tab_ramp_stabilize,
                                 text='Process',
