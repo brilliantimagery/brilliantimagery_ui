@@ -1,6 +1,8 @@
-from pathlib import Path
+import multiprocessing
+import os
+import sys
 from tkinter import Tk, Canvas, SE, ttk, Label, Entry, Button, filedialog, END, \
-    messagebox, Menu, IntVar, StringVar, Scrollbar, Checkbutton, W, LabelFrame, NW, HORIZONTAL, \
+    messagebox, Menu, IntVar, Scrollbar, Checkbutton, W, LabelFrame, NW, HORIZONTAL, \
     VERTICAL, Frame, LEFT, BOTH, Y, RIGHT, BOTTOM, X, TOP
 
 import numpy as np
@@ -12,6 +14,17 @@ from brilliantimagery.dng import DNG
 from brilliantimagery.sequence import Sequence
 
 from brilliantimagery_ui.default_settings import DefaultSettings
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 class UI:
@@ -28,7 +41,8 @@ class UI:
         self.root.geometry('600x400')
         # self.root.resizable(width=False, height=False)
         self.root.title('Brilliant Imagery')
-        self.root.iconbitmap(Path('.') / 'logo.ico')
+        # self.root.iconbitmap(Path('.') / 'logo.ico')
+        self.root.iconbitmap(os.path.join(resource_path(""), 'logo.ico'))
 
         self.sequence = None
 
@@ -41,7 +55,7 @@ class UI:
         self._make_menu_bar()
 
         # get default values
-        self.default_settings = DefaultSettings()
+        # self.default_settings = DefaultSettings()
 
         # set up tabs
         self.tab_control = ttk.Notebook(self.root)
@@ -51,9 +65,6 @@ class UI:
     def _make_menu_bar(self):
         def quite_app():
             self.root.quit()
-
-        def show_about(event=None):
-            messagebox.showinfo('About', "I'm working on it!")
 
         self.menu = Menu(self.root)
 
@@ -189,8 +200,11 @@ class UI:
         process_button.grid(row=folder_selector_row + 1, column=0, sticky=W, padx=10, pady=10)
 
         msg = IntVar()
-        Checkbutton(tab_ramp_stabilize, text="Show MessageBox when done.",
-                    variable=msg).grid(row=folder_selector_row + 1, column=1, sticky=W)
+        Checkbutton(tab_ramp_stabilize,
+                    text="Show MessageBox when done.",
+                    variable=msg).grid(row=folder_selector_row + 1,
+                                       column=1,
+                                       sticky=W)
 
     def _process(self, ramp, exposure, stabilize, show_finished):
         if not self.point1 or not self.point2 or not self.sequence or not \
@@ -223,7 +237,8 @@ class UI:
 
         self._draw_image()
 
-        messagebox.showinfo('Done', 'All done!')
+        if show_finished:
+            messagebox.showinfo('Done', 'All done!')
 
     def _open_sequence(self, entry):
         folder = self._open_folder(entry)
@@ -240,8 +255,9 @@ class UI:
         self._draw_image()
 
     def _open_folder(self, entry):
-        folder = filedialog.askdirectory(initialdir=self.default_settings.get('open_folder_dialog'),
-                                         title='Select A Sequence Folder')
+        # folder = filedialog.askdirectory(initialdir=self.default_settings.get('open_folder_dialog'),
+        #                                  title='Select A Sequence Folder')
+        folder = filedialog.askdirectory(title='Select A Sequence Folder')
         if not folder:
             return
 
@@ -270,8 +286,12 @@ class UI:
         self.renderer_canvas.config(scrollregion=(0, 0, image.width, image.height))
 
     def _open_file(self, entry):
+        # file = filedialog.askopenfilename(
+        # initialdir=self.default_settings.get('open_folder_dialog'),
+        # title='Select an Image to Render',
+        # filetypes=(('dng files', '*.dng'),
+        #            ('all files', '*.*')))
         file = filedialog.askopenfilename(
-            initialdir=self.default_settings.get('open_folder_dialog'),
             title='Select an Image to Render',
             filetypes=(('dng files', '*.dng'),
                        ('all files', '*.*')))
@@ -319,8 +339,6 @@ class UI:
 
 
 if __name__ == '__main__':
-    # root = Tk()
-    # ui = UI(root)
-    # root.mainloop()
+    multiprocessing.freeze_support()
     ui = UI(Tk())
     ui.root.mainloop()
