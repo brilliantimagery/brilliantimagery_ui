@@ -86,7 +86,7 @@ description = "A python DNG editing package."
 name = "brilliantimagery"
 optional = false
 python-versions = ">=3.8,<4.0"
-version = "0.1.0"
+version = "0.1.1"
 
 [package.dependencies]
 Sphinx = ">=2.3.1,<3.0.0"
@@ -551,7 +551,7 @@ description = "Fast, Extensible Progress Meter"
 name = "tqdm"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*"
-version = "4.41.1"
+version = "4.42.0"
 
 [package.extras]
 dev = ["py-make (>=0.1.0)", "twine", "argopt", "pydoc-markdown"]
@@ -561,8 +561,8 @@ category = "main"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 name = "urllib3"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4"
-version = "1.25.7"
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
+version = "1.25.8"
 
 [package.extras]
 brotli = ["brotlipy (>=0.6.0)"]
@@ -586,7 +586,7 @@ python-versions = "*"
 version = "0.6.1"
 
 [metadata]
-content-hash = "9118f91a38d90250b9efcc5f7332fdc4e9a883a92709bc80b401b699419202f9"
+content-hash = "38ea1e7b153045299ccbbdc8ee6f44f1c6260bfcf5b08eab05c46e2f253c0e29"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -622,9 +622,8 @@ bottle-websocket = [
     {file = "bottle-websocket-0.2.9.tar.gz", hash = "sha256:9887f70dc0c7592ed8d0d11a14aa95dede6cd08d50d83d5b81fd963e5fec738b"},
 ]
 brilliantimagery = [
-    {file = "brilliantimagery-0.1.0-cp38-cp38m-win32.whl", hash = "sha256:ed013c1536235f23aee2d47ca49693d7b7bc3f0a07a1ced8053c14e5e98f9d28"},
-    {file = "brilliantimagery-0.1.0.tar.gz", hash = "sha256:fbe20085b17f9abcd9812db7e4b73fec5abfa910ff48789bfeaa8195219586b8"},
-    {file = "brilliantimagery1-0.1.0-cp38-cp38m-win32.whl", hash = "sha256:77a5e3fb60abd8727ea236c68a28a1bb1710f0732b580de0ed340c2bbfbf7c87"},
+    {file = "brilliantimagery-0.1.1-cp38-cp38m-win32.whl", hash = "sha256:b5b26e51451983434b51bd785d63d65d4de000f2583dc98d444221991ddc7873"},
+    {file = "brilliantimagery-0.1.1.tar.gz", hash = "sha256:1ea926a34a0f79dd0ade8ecee33f53eec59ed375b7eea3ecda0e126501f0ea7f"},
 ]
 certifi = [
     {file = "certifi-2019.11.28-py2.py3-none-any.whl", hash = "sha256:017c25db2a153ce562900032d5bc68e9f191e44e9a0f762f373977de9df1fbb3"},
@@ -990,12 +989,12 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.3-py2.py3-none-any.whl", hash = "sha256:db6615af393650bf1151a6cd39120c29abaf93cc60db8c48eb2dddbfdc3a9768"},
 ]
 tqdm = [
-    {file = "tqdm-4.41.1-py2.py3-none-any.whl", hash = "sha256:efab950cf7cc1e4d8ee50b2bb9c8e4a89f8307b49e0b2c9cfef3ec4ca26655eb"},
-    {file = "tqdm-4.41.1.tar.gz", hash = "sha256:4789ccbb6fc122b5a6a85d512e4e41fc5acad77216533a6f2b8ce51e0f265c23"},
+    {file = "tqdm-4.42.0-py2.py3-none-any.whl", hash = "sha256:01464d5950e9a07a8e463c2767883d9616c099c6502f6c7ef4e2e11d3065bd35"},
+    {file = "tqdm-4.42.0.tar.gz", hash = "sha256:5865f5fef9d739864ff341ddaa69894173ebacedb1aaafcf014de56343d01d5c"},
 ]
 urllib3 = [
-    {file = "urllib3-1.25.7-py2.py3-none-any.whl", hash = "sha256:a8a318824cc77d1fd4b2bec2ded92646630d7fe8619497b142c84a9e6f5a7293"},
-    {file = "urllib3-1.25.7.tar.gz", hash = "sha256:f3c5fd51747d450d4dcf6f923c81f78f811aab8205fda64b0aba34a4e48b0745"},
+    {file = "urllib3-1.25.8-py2.py3-none-any.whl", hash = "sha256:2f3db8b19923a873b3e5256dc9c2dedfa883e33d87c690d9c7913e1f40673cdc"},
+    {file = "urllib3-1.25.8.tar.gz", hash = "sha256:87716c2d2a7121198ebcb7ce7cccf6ce5e9ba539041cfbaeecfb641dc0bf6acc"},
 ]
 wcwidth = [
     {file = "wcwidth-0.1.8-py2.py3-none-any.whl", hash = "sha256:8fd29383f539be45b20bd4df0dc29c20ba48654a41e661925e612311e9f3c603"},

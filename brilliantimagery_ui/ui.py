@@ -162,7 +162,7 @@ class UI:
         self.canvas.grid(row=0, column=0, columnspan=2)
         self.canvas.bind('<Button-1>', self._draw_image)
 
-        # make function stuff
+        # make function checkboxes
         procedures_frame = LabelFrame(tab_ramp_stabilize, text='Operations To Perform')
         procedures_frame.grid(row=0, column=2, padx=5, pady=5, sticky=NW)
         ramp = IntVar()
@@ -179,7 +179,7 @@ class UI:
         folder_selector_row = 2
         folder_sslector_column = 0
         Label(tab_ramp_stabilize,
-              text='Image folder:').grid(row=folder_selector_row,
+              text='Sequence Folder:').grid(row=folder_selector_row,
                                          column=folder_sslector_column,
                                          padx=10)
         folder_entry = Entry(tab_ramp_stabilize, width=70)
