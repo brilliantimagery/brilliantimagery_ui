@@ -385,7 +385,7 @@ bottle-websocket = [
     {file = "bottle-websocket-0.2.9.tar.gz", hash = "sha256:9887f70dc0c7592ed8d0d11a14aa95dede6cd08d50d83d5b81fd963e5fec738b"},
 ]
 brilliantimagery = [
-    {file = "brilliantimagery-0.2.0.tar.gz", hash = "sha256:ab79e9854e93c33cae14904b1dbe27263e8afd39f6f8e9515d07517e84e95ffd"},
+    {file = "brilliantimagery-0.2.0.tar.gz", hash = "sha256:cc12362b4afd52dd48d36ff9a972273680c4ef7fb027838ed1d32474f2300ca5"},
 ]
 cffi = [
     {file = "cffi-1.13.2-cp27-cp27m-macosx_10_6_intel.whl", hash = "sha256:3c9fff570f13480b201e9ab69453108f6d98244a7f495e91b6c654a47486ba43"},

@@ -402,6 +402,7 @@ class UI:
 
         self.point1 = params.get('point1')
         self.point2 = params.get('point2')
+        self.last_points = (self.point1, self.point2)
 
         if params.get('ramp'):
             self.ramp_checkbutton.select()
@@ -448,7 +449,7 @@ class UI:
             return True
         elif self.reuse_misalignment.get() and self.stabilize.get():
             return True
-        elif self.ramp.get():
+        elif self.ramp.get() and not (self.exposure.get() or self.stabilize.get()):
             return True
 
         messagebox.showerror('Oops!',
