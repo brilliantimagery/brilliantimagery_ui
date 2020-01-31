@@ -17,11 +17,6 @@ from PIL import Image
 from PIL.ImageTk import PhotoImage
 
 
-# from brilliantimagery_ui import ui_utils
-
-# from brilliantimagery_ui.default_settings import DefaultSettings
-
-
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
@@ -53,15 +48,12 @@ class UI:
 
         self.canvas = None
         self.image = None
-        self.point1 = None
-        self.point2 = None
+        self.point1 = ()
+        self.point2 = ()
+        self.last_points = ((), ())
         self.files_last_parsed = None
-        # self.tab_renderer = None
 
         self._make_menu_bar()
-
-        # get default values
-        # self.default_settings = DefaultSettings()
 
         # set up tabs
         self.tab_control = ttk.Notebook(self.root)
@@ -85,30 +77,6 @@ class UI:
         file_menu.add_separator()
         file_menu.add_command(label='Exit', command=quite_app)
         self.menu.add_cascade(label='File', menu=file_menu)
-
-        # ------ Font Menu ------
-        # text_font = StringVar()
-        # text_font.set('Times')
-        #
-        # def change_font(event=None):
-        #     print(f'Font Picked: {text_font.get()}')
-        #
-        # font_menu = Menu(self.menu, tearoff=0)
-        # font_menu.add_radiobutton(label='Times', variable=text_font, command=change_font)
-        #
-        # font_menu.add_radiobutton(label='Courier', variable=text_font, command=change_font)
-        #
-        # font_menu.add_radiobutton(label='Ariel', variable=text_font, command=change_font)
-        #
-        # # ------ View Menu ------
-        # view_menu = Menu(self.menu, tearoff=0)
-        #
-        # line_numbers = IntVar()
-        # line_numbers.set(1)
-        #
-        # view_menu.add_checkbutton(label='Show Numbers', variable=line_numbers)
-        # view_menu.add_cascade(label='Fonts', menu=font_menu)
-        # self.menu.add_cascade(label='View', menu=view_menu)
 
         # --------- Help Menu --------
         help_menu = Menu(self.menu, tearoff=0)
@@ -153,9 +121,6 @@ class UI:
                                     yscrollcommand=vertical_scroll_bar.set)
 
     def _make_ramp_stabilize_tab(self):
-        self.point1 = ()
-        self.point2 = ()
-
         # set up tab
         tab_ramp_stabilize = ttk.Frame(self.tab_control)
         self.tab_control.add(tab_ramp_stabilize, text='Ramp & Stabilize')
@@ -163,50 +128,45 @@ class UI:
         # self.tab_control.grid(row=0, column=0)
 
         # make image canvas
-        self.canvas = Canvas(tab_ramp_stabilize,
-                             width=255,
-                             height=255
-                             )
+        self.canvas = Canvas(tab_ramp_stabilize, width=255, height=255)
         self.canvas.grid(row=0, column=0, columnspan=2, rowspan=4)
-        self.canvas.bind('<Button-1>', self._draw_image)
+        self.canvas.bind('<Button-1>', self._process_canvas_click)
 
         # make function checkboxes
         procedures_frame = LabelFrame(tab_ramp_stabilize, text='Operations To Perform')
         procedures_frame.grid(row=0, column=2, padx=5, pady=5, sticky=NW)
+
         self.ramp = IntVar()
         self.ramp_checkbutton = Checkbutton(procedures_frame, text="Ramp Linear Properties",
                                             variable=self.ramp)
         self.ramp_checkbutton.grid(row=0, column=0, sticky=W)
-        self.exp = IntVar()
-        self.exp_checkbutton = Checkbutton(procedures_frame, text="Ramp Exposure",
-                                           variable=self.exp)
-        self.exp_checkbutton.grid(row=1, column=0, sticky=W)
-        self.stab = IntVar()
-        self.stab_checkbutton = Checkbutton(procedures_frame, text="Stabilize",
-                                            variable=self.stab)
-        self.stab_checkbutton.grid(row=2, column=0, sticky=W)
+
+        self.exposure = IntVar()
+        self.exposure_checkbutton = Checkbutton(procedures_frame, text="Ramp Exposure",
+                                                variable=self.exposure)
+        self.exposure_checkbutton.grid(row=1, column=0, sticky=W)
+
+        self.stabilize = IntVar()
+        self.stabilize_checkbutton = Checkbutton(procedures_frame, text="Stabilize",
+                                                 variable=self.stabilize)
+        self.stabilize_checkbutton.grid(row=2, column=0, sticky=W)
 
         # Reload and reuse
         reuse_frame = LabelFrame(tab_ramp_stabilize, text='Data Reuse')
         reuse_frame.grid(row=1, column=2, padx=5, pady=5, sticky=NW)
-        self.reuse_mis = IntVar()
+        self.reuse_misalignment = IntVar()
         self.reuse_mis_checkbutton = Checkbutton(reuse_frame,
                                                  text='Use Previously Calculated Misalignments',
-                                                 variable=self.reuse_mis)
+                                                 variable=self.reuse_misalignment)
         self.reuse_mis_checkbutton.grid(row=0, column=0, sticky=NW)
-        self.reuse_bright = IntVar()
+        self.reuse_brightness = IntVar()
         self.reuse_bright_checkbutton = Checkbutton(reuse_frame,
                                                     text='Use Previously Calculated Brightnesses',
-                                                    variable=self.reuse_bright)
+                                                    variable=self.reuse_brightness)
         self.reuse_bright_checkbutton.grid(row=1, column=0, sticky=NW)
 
-        Button(reuse_frame,
-               text='Reload Image',
-               command=lambda: self._load_image(self.folder_entry.get())).grid(row=2,
-                                                                               column=0,
-                                                                               sticky=NW,
-                                                                               padx=5,
-                                                                               pady=5)
+        Button(reuse_frame, text='Reload Image', command=lambda: (self._load_image(
+            self.folder_entry.get())).grid(row=2, column=0, sticky=NW, padx=5, pady=5))
 
         # set up folder selector
         folder_selector_row = 4
@@ -227,32 +187,20 @@ class UI:
                            column=folder_selector_column + 3,
                            sticky=W, padx=10)
 
-        process_button = Button(tab_ramp_stabilize,
-                                text='Process',
-                                command=lambda: self._process(msg.get()))
+        process_button = Button(tab_ramp_stabilize, text='Process',
+                                command=lambda: self._process_sequence(message_finished.get()))
         process_button.grid(row=folder_selector_row + 1, column=0, sticky=W, padx=10, pady=10)
 
-        msg = IntVar()
+        message_finished = IntVar()
         Checkbutton(tab_ramp_stabilize,
                     text="Show MessageBox when done.",
-                    variable=msg).grid(row=folder_selector_row + 1,
-                                       column=1,
-                                       sticky=W)
+                    variable=message_finished).grid(row=folder_selector_row + 1, column=1, sticky=W)
 
-    def _process(self, show_finished):
+    def _process_sequence(self, show_finished):
         if not self._validate_selections():
             return
 
-        if not self.reuse_mis.get() and not self.reuse_bright.get():
-            folder = Path(self.folder_entry.get())
-            files = [f for f in folder.iterdir() if
-                     (folder / f).is_file() and f.suffix.lower() == '.dng']
-
-            if not self.reuse_mis.get():
-                self.sequence.set_misalignments({f: None for f in files})
-
-            if not self.reuse_bright.get():
-                self.sequence.set_brightnesses({f: None for f in files})
+        self._maybe_reset_misalignment_brightness()
 
         rectangle = (min(self.point1[0], self.point2[0]), min(self.point1[1], self.point2[1]),
                      max(self.point1[0], self.point2[0]), max(self.point1[1], self.point2[1]))
@@ -264,34 +212,46 @@ class UI:
             self.sequence.parse_sequence()
             self.files_last_parsed = time.time()
 
-        if self.ramp.get() and not self.exp.get() and not self.stab.get():
+        if self.ramp.get() and not self.exposure.get() and not self.stabilize.get():
             self.sequence.ramp_minus_exmpsure()
-        elif not self.ramp.get() and self.exp.get() and not self.stab.get():
+        elif not self.ramp.get() and self.exposure.get() and not self.stabilize.get():
             self.sequence.ramp_exposure(rectangle)
-        elif not self.ramp.get() and not self.exp.get() and self.stab.get():
+        elif not self.ramp.get() and not self.exposure.get() and self.stabilize.get():
             self.sequence.stabilize(rectangle)
-        elif self.ramp.get() and self.exp.get() and not self.stab.get():
+        elif self.ramp.get() and self.exposure.get() and not self.stabilize.get():
             self.sequence.ramp(rectangle)
-        elif not self.ramp.get() and self.exp.get() and self.stab.get():
+        elif not self.ramp.get() and self.exposure.get() and self.stabilize.get():
             self.sequence.ramp_exposure_and_stabilize(rectangle)
-        elif self.ramp.get() and not self.exp.get() and self.stab.get():
+        elif self.ramp.get() and not self.exposure.get() and self.stabilize.get():
             self.sequence.ramp_minus_exposure_and_stabilize(rectangle)
-        elif self.ramp.get() and self.exp.get() and self.stab.get():
+        elif self.ramp.get() and self.exposure.get() and self.stabilize.get():
             self.sequence.ramp_and_stabilize(rectangle)
 
         self.sequence.save()
 
-        self._draw_image()
-
-        if self.exp.get():
+        if self.exposure.get():
             self.reuse_bright_checkbutton.select()
-        if self.stab.get():
+        if self.stabilize.get():
             self.reuse_mis_checkbutton.select()
 
         if show_finished:
             messagebox.showinfo('Done', 'All done!')
 
-        print('Done!')
+        print('Done Processing!')
+
+    def _maybe_reset_misalignment_brightness(self):
+        folder = Path(self.folder_entry.get())
+        files = [f.name for f in folder.iterdir() if
+                 (folder / f).is_file() and f.suffix.lower() == '.dng']
+
+        if (self.point1, self.point2) != self.last_points:
+            self.sequence.set_misalignments({f: None for f in files})
+            self.sequence.set_brightnesses({f: None for f in files})
+        else:
+            if not self.reuse_misalignment.get():
+                self.sequence.set_misalignments({f: None for f in files})
+            if not self.reuse_brightness.get():
+                self.sequence.set_brightnesses({f: None for f in files})
 
     def _open_sequence(self):
         folder = self._open_folder(self.folder_entry)
@@ -338,10 +298,8 @@ class UI:
         image = PIL.Image.fromarray(image_array.astype('uint8'), mode='RGB')
 
         self.image_rendered = PhotoImage(image)
-        self.renderer_canvas.create_image(self.image_rendered.width(),
-                                          self.image_rendered.height(),
-                                          image=self.image_rendered,
-                                          anchor=SE)
+        self.renderer_canvas.create_image(self.image_rendered.width(), self.image_rendered.height(),
+                                          image=self.image_rendered, anchor=SE)
         self.renderer_canvas.config(scrollregion=(0, 0, image.width, image.height))
 
     def _open_file(self, entry):
@@ -360,14 +318,22 @@ class UI:
         entry.insert(0, text)
         return
 
-    def _draw_image(self, click=None):
+    def _process_canvas_click(self, click=None):
+        if not self.image:
+            return
+        self._get_point(click)
+        self._draw_image()
+        if not self.point2:
+            self.reuse_mis_checkbutton.deselect()
+            self.reuse_bright_checkbutton.deselect()
+
+    def _draw_image(self):
         if not self.image:
             return
 
         self.canvas.create_image(self.image.width(), self.image.height(),
                                  image=self.image, anchor=SE)
 
-        self._get_point(click)
         if self.point1:
             self._draw_corner(self.point1)
         if self.point2:
@@ -403,8 +369,8 @@ class UI:
         params = {'point1': self.point1,
                   'point2': self.point2,
                   'ramp': self.ramp.get(),
-                  'exposure': self.exp.get(),
-                  'stabilize': self.stab.get(),
+                  'exposure': self.exposure.get(),
+                  'stabilize': self.stabilize.get(),
                   'folder': self.folder_entry.get(),
                   'misalignments': misalignments,
                   'brightnesses': brightnesses,
@@ -442,13 +408,13 @@ class UI:
         else:
             self.ramp_checkbutton.deselect()
         if params.get('exposure'):
-            self.exp_checkbutton.select()
+            self.exposure_checkbutton.select()
         else:
-            self.exp_checkbutton.deselect()
+            self.exposure_checkbutton.deselect()
         if params.get('stabilize'):
-            self.stab_checkbutton.select()
+            self.stabilize_checkbutton.select()
         else:
-            self.stab_checkbutton.deselect()
+            self.stabilize_checkbutton.deselect()
 
         folder = params.get('folder')
         self._set_text(self.folder_entry, folder)
@@ -472,24 +438,17 @@ class UI:
         else:
             rectangle = False
 
-        ramp = self.ramp.get()
-        exp = self.exp.get()
-        stab = self.stab.get()
-
-        bright = self.reuse_bright.get()
-        mis = self.reuse_mis.get()
-
         if not self.folder_entry.get():
             messagebox.showerror('Oops!', 'You need to specify a Sequence Folder.')
             return False
 
-        if rectangle and (exp or stab):
+        if rectangle and (self.exposure.get() or self.stabilize.get()):
             return True
-        elif bright and exp:
+        elif self.reuse_brightness.get() and self.exposure.get():
             return True
-        elif mis and stab:
+        elif self.reuse_misalignment.get() and self.stabilize.get():
             return True
-        elif ramp:
+        elif self.ramp.get():
             return True
 
         messagebox.showerror('Oops!',
@@ -498,12 +457,6 @@ class UI:
                              "what info to reuse)")
 
         return False
-
-        # if not self.point1 or not self.point2 or not self.sequence or not \
-        #         (self.ramp.get() or self.exp.get() or self.stab.get()):
-        #     messagebox.showerror('Oops!', "You didn't select 2 points, enter an "
-        #                                   "image, and select actions to perform")
-        #     return False
 
 
 def files_last_updated(folder):
