@@ -166,7 +166,7 @@ class UI:
         self.reuse_bright_checkbutton.grid(row=1, column=0, sticky=NW)
 
         Button(reuse_frame, text='Reload Image', command=lambda: (self._load_image(
-            self.folder_entry.get())).grid(row=2, column=0, sticky=NW, padx=5, pady=5))
+            self.folder_entry.get()))).grid(row=2, column=0, sticky=NW, padx=5, pady=5)
 
         # set up folder selector
         folder_selector_row = 4
