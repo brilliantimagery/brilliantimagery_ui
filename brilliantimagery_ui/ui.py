@@ -165,7 +165,7 @@ class UI:
                                                     variable=self.reuse_brightness)
         self.reuse_bright_checkbutton.grid(row=1, column=0, sticky=NW)
 
-        Button(reuse_frame, text='Reload Image', command=lambda: (self._load_image(
+        Button(reuse_frame, text='Reload Image', command=lambda: (self._load_sequence(
             self.folder_entry.get()))).grid(row=2, column=0, sticky=NW, padx=5, pady=5)
 
         # set up folder selector
@@ -179,7 +179,7 @@ class UI:
         self.folder_entry.grid(row=folder_selector_row,
                                column=folder_selector_column + 1,
                                columnspan=2)
-        self.folder_entry.bind('<FocusOut>', lambda e: self._load_image(self.folder_entry.get()))
+        self.folder_entry.bind('<FocusOut>', lambda e: self._load_sequence(self.folder_entry.get()))
         folder_button = Button(tab_ramp_stabilize,
                                text='Folder',
                                command=self._open_sequence)
@@ -256,12 +256,12 @@ class UI:
     def _open_sequence(self):
         folder = self._open_folder(self.folder_entry)
         if folder:
-            self._load_image(folder)
+            self._load_sequence(folder)
 
-    def _load_image(self, folder):
+    def _load_sequence(self, folder):
         if not Path(folder).is_dir():
             return
-        if not self.sequence:
+        if not self.sequence or folder != self.sequence.path:
             self.sequence = Sequence(folder)
             self.files_last_parsed = time.time()
 
@@ -419,7 +419,7 @@ class UI:
 
         folder = params.get('folder')
         self._set_text(self.folder_entry, folder)
-        self._load_image(folder)
+        self._load_sequence(folder)
 
         misalignments = params.get('misalignments')
         brightnesses = params.get('brightnesses')
