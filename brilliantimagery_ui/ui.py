@@ -223,6 +223,8 @@ class UI:
         if self.stabilize.get():
             self.reuse_mis_checkbutton.select()
 
+        self.last_points = (self.point1, self.point2)
+
         if show_finished:
             messagebox.showinfo('Done', 'All done!')
 
