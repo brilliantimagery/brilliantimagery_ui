@@ -18,13 +18,4 @@ def resource_path() -> Path:
     except Exception:
         base_path = Path(__file__).absolute().parents[1]
 
-    print(base_path)
-
     return base_path
-
-
-def files_last_updated(folder):
-    folder = Path(folder)
-    files = [folder / f for f in folder.iterdir() if
-             (folder / f).is_file() and f.suffix.lower() == '.dng']
-    return max([os.stat(f).st_mtime for f in files])
