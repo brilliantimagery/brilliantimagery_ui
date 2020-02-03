@@ -1,8 +1,6 @@
 import json
 import multiprocessing
-import os
 from pathlib import Path
-import sys
 import time
 from tkinter import Tk, Canvas, SE, ttk, Label, Entry, Button, filedialog, END, \
     messagebox, Menu, IntVar, Scrollbar, Checkbutton, W, LabelFrame, NW, HORIZONTAL, \
@@ -16,16 +14,7 @@ import PIL
 from PIL import Image
 from PIL.ImageTk import PhotoImage
 
-
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = Path(sys._MEIPASS)
-    except Exception:
-        base_path = Path('.')
-
-    return base_path / relative_path
+from brilliantimagery_ui.ui_utils import files_last_updated, resource_path
 
 
 class UI:
@@ -42,7 +31,7 @@ class UI:
         self.root.geometry('650x400')
         # self.root.resizable(width=False, height=False)
         self.root.title('BrilliantImagery')
-        # self.root.iconbitmap(resource_path("") / 'logo.ico')
+        self.root.iconbitmap(resource_path() / 'brilliantimagery_ui' / 'logo.ico')
 
         self.sequence = None
 
@@ -458,13 +447,6 @@ class UI:
                              "what info to reuse)")
 
         return False
-
-
-def files_last_updated(folder):
-    folder = Path(folder)
-    files = [folder / f for f in folder.iterdir() if
-             (folder / f).is_file() and f.suffix.lower() == '.dng']
-    return max([os.stat(f).st_mtime for f in files])
 
 
 if __name__ == '__main__':
