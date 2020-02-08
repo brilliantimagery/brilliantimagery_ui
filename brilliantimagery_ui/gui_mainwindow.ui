@@ -35,6 +35,9 @@
       <height>20000</height>
      </size>
     </property>
+    <property name="mouseTracking">
+     <bool>false</bool>
+    </property>
     <property name="autoFillBackground">
      <bool>false</bool>
     </property>
@@ -56,6 +59,12 @@
         <width>256</width>
         <height>256</height>
        </rect>
+      </property>
+      <property name="mouseTracking">
+       <bool>true</bool>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
       </property>
       <property name="text">
        <string/>
