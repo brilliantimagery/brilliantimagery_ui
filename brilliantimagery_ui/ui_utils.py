@@ -19,3 +19,4 @@ def resource_path() -> Path:
         base_path = Path(__file__).absolute().parents[1]
 
     return base_path
+

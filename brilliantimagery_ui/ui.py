@@ -15,6 +15,7 @@ from PIL import Image
 from PIL.ImageTk import PhotoImage
 
 from brilliantimagery_ui.ui_utils import files_last_updated, resource_path
+from brilliantimagery_ui.renderer import render
 
 
 class UI:
@@ -47,45 +48,24 @@ class UI:
         # set up tabs
         self.tab_control = ttk.Notebook(self.root)
         self._make_ramp_stabilize_tab()
+        self._make_video_render_tab()
         self._make_renderer_tab()
 
-    def _make_menu_bar(self):
-        def quite_app():
-            self.root.quit()
-
-        self.menu = Menu(self.root)
-
-        # ------ File Menu ------
-        file_menu = Menu(self.menu, tearoff=0)
-        file_menu.add_command(label='Open Project',
-                              accelerator='Ctrl+O',
-                              command=self._open_project)
-        file_menu.add_command(label='Save Project',
-                              accelerator='Ctrl+S',
-                              command=self._save_project)
-        file_menu.add_separator()
-        file_menu.add_command(label='Exit', command=quite_app)
-        self.menu.add_cascade(label='File', menu=file_menu)
-
-        # --------- Help Menu --------
-        help_menu = Menu(self.menu, tearoff=0)
-        help_menu.add_command(label='About',
-                              command=lambda: messagebox.showinfo('About',
-                                                                  f"BrilliantImagery UI\n\n"
-                                                                  f"Version: "
-                                                                  f"{brilliantimagery.__version__}"
-                                                                  f"\nGo to brilliantimagery.org "
-                                                                  f"for more info."))
-        self.menu.add_cascade(label='Help', menu=help_menu)
-
-        self.root.config(menu=self.menu)
-
-    def _make_renderer_tab(self):
-        tab_renderer = ttk.Frame(self.tab_control)
-        self.tab_control.add(tab_renderer, text='Renderer')
+    def _make_video_render_tab(self):
+        tab_video_renderer = ttk.Frame(self.tab_control)
+        self.tab_control.add(tab_video_renderer, text='Video Renderer')
         self.tab_control.pack(expand=1, fill='both')
 
-        interface_frame = Frame(tab_renderer)
+        self.render_video_button = Button(tab_video_renderer, text='Render Video',
+                                          command=render)
+        self.render_video_button.pack()
+
+    def _make_renderer_tab(self):
+        tab_image_renderer = ttk.Frame(self.tab_control)
+        self.tab_control.add(tab_image_renderer, text='Image Renderer')
+        self.tab_control.pack(expand=1, fill='both')
+
+        interface_frame = Frame(tab_image_renderer)
         interface_frame.pack(side=TOP, anchor=W)
         Label(interface_frame, text='Image Path:').grid(row=0, column=0, padx=10, pady=10)
         file_entry = Entry(interface_frame, width=70)
@@ -94,7 +74,7 @@ class UI:
                                command=lambda: self._open_image(file_entry))
         folder_button.grid(row=0, column=2, padx=10)
 
-        image_frame = Frame(tab_renderer)
+        image_frame = Frame(tab_image_renderer)
         image_frame.pack(expand=1, fill='both')
         self.renderer_canvas = Canvas(image_frame, width=500, height=350,
                                       scrollregion=(0, 0, 500, 350))
@@ -449,6 +429,37 @@ class UI:
                              "what info to reuse)")
 
         return False
+
+    def _make_menu_bar(self):
+        def quite_app():
+            self.root.quit()
+
+        self.menu = Menu(self.root)
+
+        # ------ File Menu ------
+        file_menu = Menu(self.menu, tearoff=0)
+        file_menu.add_command(label='Open Project',
+                              accelerator='Ctrl+O',
+                              command=self._open_project)
+        file_menu.add_command(label='Save Project',
+                              accelerator='Ctrl+S',
+                              command=self._save_project)
+        file_menu.add_separator()
+        file_menu.add_command(label='Exit', command=quite_app)
+        self.menu.add_cascade(label='File', menu=file_menu)
+
+        # --------- Help Menu --------
+        help_menu = Menu(self.menu, tearoff=0)
+        help_menu.add_command(label='About',
+                              command=lambda: messagebox.showinfo('About',
+                                                                  f"BrilliantImagery UI\n\n"
+                                                                  f"Version: "
+                                                                  f"{brilliantimagery.__version__}"
+                                                                  f"\nGo to brilliantimagery.org "
+                                                                  f"for more info."))
+        self.menu.add_cascade(label='Help', menu=help_menu)
+
+        self.root.config(menu=self.menu)
 
 
 if __name__ == '__main__':
