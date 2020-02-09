@@ -166,7 +166,7 @@
       <widget class="QPushButton" name="reload_image_button">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>9</x>
          <y>65</y>
          <width>75</width>
          <height>23</height>
@@ -180,15 +180,18 @@
      <widget class="QWidget" name="horizontalLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>280</x>
+        <x>270</x>
         <y>260</y>
-        <width>223</width>
+        <width>227</width>
         <height>31</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <property name="spacing">
         <number>10</number>
+       </property>
+       <property name="leftMargin">
+        <number>4</number>
        </property>
        <item>
         <widget class="QPushButton" name="ramp_button">

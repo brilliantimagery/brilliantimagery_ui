@@ -36,6 +36,7 @@ class MainWindow(QMainWindow):
 
         # Ramp Tab Setup
         self.ui.ramp_folder_button.clicked.connect(self.open_sequence)
+        self.ui.reload_image_button.clicked.connect(lambda: self.load_sequence(self.ui.ramp_folder_edit.text()))
 
     def open_sequence(self):
         folder = self.open_folder(self.ui.ramp_folder_edit,
