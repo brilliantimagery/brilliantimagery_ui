@@ -14,7 +14,7 @@ import PIL
 from PIL import Image
 from PIL.ImageTk import PhotoImage
 
-from brilliantimagery_ui.ui_utils import files_last_updated, resource_path
+from brilliantimagery_ui.gui_utils import files_last_updated, resource_path
 from brilliantimagery_ui.renderer import render
 
 

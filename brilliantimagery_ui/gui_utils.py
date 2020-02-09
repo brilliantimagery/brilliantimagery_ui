@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 import sys
 
+from PySide2.QtCore import QRect
+
 
 def files_last_updated(folder):
     folder = Path(folder)
@@ -20,3 +22,11 @@ def resource_path() -> Path:
 
     return base_path
 
+
+def get_cropped_qrect(point, image, radius):
+    point1 = max(0, point[0] - radius)
+    point2 = max(0, point[1] - radius)
+    point3 = min(image.width(), point[0] + radius)
+    point4 = min(image.height(), point[1] + radius)
+
+    return QRect(point1, point2, point3 - point1, point4 - point2)

@@ -1,19 +1,21 @@
 import sys
 import time
-from copy import deepcopy
 from pathlib import Path
 
 from brilliantimagery.sequence import Sequence
 import numpy as np
 from PySide2 import QtGui
-from PySide2.QtCore import QFile, QSettings, QSize, Qt, QPoint
+from PySide2.QtCore import QSettings, QPoint
 from PySide2.QtGui import QImage, QMouseEvent, QColor
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog
 
 from brilliantimagery_ui.gui_mainwindow import Ui_MainWindow
+from brilliantimagery_ui.gui_utils import get_cropped_qrect
 
 
 class MainWindow(QMainWindow):
+    CORNER_RADIUS = 2
+    COLOR = QColor(255, 0, 0)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -37,7 +39,6 @@ class MainWindow(QMainWindow):
 
     def open_sequence(self):
         folder = self.open_folder(self.ui.ramp_folder_edit,
-                                  # 'E:\\Pictures\\Album\\Timelapse\\test\\dng')
                                   self.default_values.value(self.default_source_folder_name))
         self.load_sequence(folder)
 
@@ -50,7 +51,7 @@ class MainWindow(QMainWindow):
 
         image = self.sequence.get_reference_image(index_order='yxc').astype(np.uint8)
         h, w, _ = image.shape
-        self.image_data = np.reshape(image, (image.size, ))
+        self.image_data = np.reshape(image, (image.size,))
         self.image = QImage(self.image_data, w, h, QImage.Format_RGB888)
 
         self.draw_image()
@@ -71,9 +72,9 @@ class MainWindow(QMainWindow):
             return
 
         if not self.point1:
-            self.point1 = (x, y)
+            self.point1 = (x - image_x, y - image_y)
         elif not self.point2:
-            self.point2 = (x, y)
+            self.point2 = (x - image_x, y - image_y)
         else:
             self.point1 = ()
             self.point2 = ()
@@ -84,10 +85,23 @@ class MainWindow(QMainWindow):
         canvas = QtGui.QPixmap(self.image)
         self.ui.ramp_image.setPixmap(canvas)
 
-        if self.point2:
+        if self.point1:
             painter = QtGui.QPainter(self.ui.ramp_image.pixmap())
-            painter.setPen(QColor(255, 0, 0))
-            painter.drawLine(10, 10, 50, 50)
+            painter.setPen(MainWindow.COLOR)
+
+            rect = get_cropped_qrect(self.point1, self.image, MainWindow.CORNER_RADIUS)
+            painter.drawRect(rect)
+            painter.fillRect(rect, MainWindow.COLOR)
+
+            if self.point2:
+                rect = get_cropped_qrect(self.point2, self.image, MainWindow.CORNER_RADIUS)
+                painter.drawRect(rect)
+                painter.fillRect(rect, MainWindow.COLOR)
+
+                painter.drawRect(min(self.point1[0], self.point2[0]),
+                                 min(self.point1[1], self.point2[1]),
+                                 abs(self.point1[0] - self.point2[0]),
+                                 abs(self.point1[1] - self.point2[1]))
             painter.end()
 
     def open_folder(self, line_edit, start_location):
