@@ -13,6 +13,13 @@ def files_last_updated(folder):
     return max([os.stat(f).st_mtime for f in files])
 
 
+def has_dngs(folder: str):
+    for file in Path(folder).iterdir():
+        if file.suffix.lower() == '.dng':
+            return True
+    return False
+
+
 def resource_path() -> Path:
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:

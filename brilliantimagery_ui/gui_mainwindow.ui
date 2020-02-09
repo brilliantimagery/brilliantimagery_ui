@@ -38,11 +38,17 @@
     <property name="mouseTracking">
      <bool>false</bool>
     </property>
+    <property name="toolTip">
+     <string/>
+    </property>
     <property name="autoFillBackground">
      <bool>false</bool>
     </property>
     <property name="currentIndex">
      <number>0</number>
+    </property>
+    <property name="usesScrollButtons">
+     <bool>false</bool>
     </property>
     <property name="movable">
      <bool>false</bool>
@@ -758,48 +764,41 @@
        </item>
        <item>
         <widget class="QCheckBox" name="scale_to_fit_checkbox">
+         <property name="toolTip">
+          <string>This hasn't yet been implimented.</string>
+         </property>
          <property name="text">
           <string>Scale to Fit</string>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QGraphicsView" name="rendered_image_view">
+     <widget class="QScrollArea" name="render_scroll_area">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>50</y>
-        <width>691</width>
+        <y>40</y>
+        <width>681</width>
         <height>351</height>
        </rect>
       </property>
-     </widget>
-     <widget class="QScrollBar" name="image_horizontal_scrollbar">
-      <property name="geometry">
-       <rect>
-        <x>9</x>
-        <y>380</y>
-        <width>691</width>
-        <height>20</height>
-       </rect>
+      <property name="widgetResizable">
+       <bool>true</bool>
       </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-     <widget class="QScrollBar" name="image_vertical_scrollbar">
-      <property name="geometry">
-       <rect>
-        <x>680</x>
-        <y>49</y>
-        <width>20</width>
-        <height>331</height>
-       </rect>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>679</width>
+         <height>349</height>
+        </rect>
+       </property>
+      </widget>
      </widget>
     </widget>
    </widget>

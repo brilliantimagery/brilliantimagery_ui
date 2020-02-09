@@ -2,15 +2,17 @@ import sys
 import time
 from pathlib import Path
 
+from brilliantimagery.dng import DNG
 from brilliantimagery.sequence import Sequence
 import numpy as np
 from PySide2 import QtGui
 from PySide2.QtCore import QSettings, QPoint
-from PySide2.QtGui import QImage, QMouseEvent, QColor
-from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
+from PySide2.QtGui import QImage, QMouseEvent, QColor, QPixmap
+from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel
 
 from brilliantimagery_ui.gui_mainwindow import Ui_MainWindow
-from brilliantimagery_ui.gui_utils import files_last_updated, get_cropped_qrect, message_box
+from brilliantimagery_ui.gui_utils import files_last_updated, get_cropped_qrect, message_box, \
+    has_dngs
 
 
 class MainWindow(QMainWindow):
@@ -39,6 +41,12 @@ class MainWindow(QMainWindow):
         self.ui.reload_image_button.clicked.connect(lambda: self.load_sequence(
             self.ui.ramp_folder_edit.text()))
         self.ui.ramp_button.clicked.connect(self.process_sequence)
+        self.ui.ramp_folder_edit.editingFinished.connect(lambda: self.load_sequence(
+            self.ui.ramp_folder_edit.text()))
+
+        # Image Render Tab Setup
+        self.ui.image_render_button.clicked.connect(lambda: self.open_render_image(True))
+        self.ui.image_render_edit.editingFinished.connect(lambda: self.open_render_image(False))
 
     def process_sequence(self):
         if not self.validate_selections():
@@ -131,12 +139,15 @@ class MainWindow(QMainWindow):
         return False
 
     def open_sequence(self):
-        folder = self.open_folder(self.ui.ramp_folder_edit,
-                                  self.default_values.value(self.default_source_folder_name))
+        if self.ui.ramp_folder_edit.text():
+            folder = self.ui.ramp_folder_edit.text()
+        else:
+            folder = self.default_values.value(self.default_source_folder_name)
+        folder = self.open_folder(self.ui.ramp_folder_edit, folder)
         self.load_sequence(folder)
 
     def load_sequence(self, folder):
-        if not folder or not Path(folder).is_dir():
+        if not folder or not Path(folder).is_dir() or not has_dngs(folder):
             return
         if not self.sequence or folder != self.sequence.path:
             self.sequence = Sequence(folder)
@@ -200,9 +211,40 @@ class MainWindow(QMainWindow):
     def open_folder(self, line_edit, start_location):
         folder = QFileDialog.getExistingDirectory(self, "Open Directory",
                                                   start_location)
+        if not folder:
+            return
         line_edit.setText(folder)
+        # TODO: default should be passed in and then source location should be looked up
         self.default_values.setValue(self.default_source_folder_name, folder)
         return folder
+
+    def open_render_image(self, use_dialog):
+        if self.ui.image_render_edit.text():
+            file = self.ui.image_render_edit.text()
+        else:
+            file = ''
+        if use_dialog:
+            file, _ = QFileDialog.getOpenFileName(self, "Open File", file, "(*.dng)")
+
+        if not file:
+            return
+        path = Path(file)
+        if not path.is_file() or path.suffix.lower() != '.dng':
+            return
+
+        self.ui.image_render_edit.setText(file)
+
+        dng = DNG(file)
+        image_array = dng.get_image() * 255
+        _, w, h = image_array.shape
+        # This has to be self... if the image is to be reloaded
+        render_image_data = np.reshape(image_array, image_array.size, 'F').astype(np.uint8)
+
+        image = QImage(render_image_data, w, h, QImage.Format_RGB888)
+        image_label = QLabel()
+        image_label.setPixmap(QPixmap.fromImage(image))
+
+        self.ui.render_scroll_area.setWidget(image_label)
 
 
 if __name__ == "__main__":
