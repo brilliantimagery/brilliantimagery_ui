@@ -7,7 +7,7 @@ import numpy as np
 from PySide2 import QtGui
 from PySide2.QtCore import QSettings, QPoint
 from PySide2.QtGui import QImage, QMouseEvent, QColor
-from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 
 from brilliantimagery_ui.gui_mainwindow import Ui_MainWindow
 from brilliantimagery_ui.gui_utils import get_cropped_qrect
@@ -36,7 +36,47 @@ class MainWindow(QMainWindow):
 
         # Ramp Tab Setup
         self.ui.ramp_folder_button.clicked.connect(self.open_sequence)
-        self.ui.reload_image_button.clicked.connect(lambda: self.load_sequence(self.ui.ramp_folder_edit.text()))
+        self.ui.reload_image_button.clicked.connect(lambda: self.load_sequence(
+            self.ui.ramp_folder_edit.text()))
+        self.ui.ramp_button.clicked.connect(self.process_sequence)
+
+    def process_sequence(self):
+        if not self.validate_selections():
+            return
+
+    def validate_selections(self):
+        if self.point1 and self.point2:
+            rectangle = True
+        else:
+            rectangle = False
+
+        if not self.ui.ramp_folder_edit.text():
+            mb = QMessageBox()
+            mb.setIcon(mb.Icon.Warning)
+            mb.setText('You need to specify a Sequence Folder.')
+            mb.setWindowTitle('Oops!')
+            mb.exec_()
+            return False
+
+        ui = self.ui
+        if rectangle and (ui.deflicker_checkbox.isChecked() or ui.stabilize_checkbox.isChecked()):
+            return True
+        elif ui.reuse_brightness_checkbox.isChecked() and ui.deflicker_checkbox.isChecked():
+            return True
+        elif ui.reuse_offsets_checkbox.isChecked() and ui.stabilize_checkbox.isChecked():
+            return True
+        elif ui.ramp_checkbox.isChecked() and not (ui.deflicker_checkbox.isChecked()
+                                                   or ui.stabilize_checkbox.isChecked()):
+            return True
+
+        mb = QMessageBox()
+        mb.setIcon(mb.Icon.Warning)
+        mb.setText("You need to specify what to do (in the Operations to Perform box) "
+                   "and what information to use (either highlight a rectangle or select "
+                   "what info to reuse)")
+        mb.setWindowTitle('Oops!')
+        mb.exec_()
+        return False
 
     def open_sequence(self):
         folder = self.open_folder(self.ui.ramp_folder_edit,
