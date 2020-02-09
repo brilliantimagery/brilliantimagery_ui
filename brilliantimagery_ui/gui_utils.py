@@ -3,6 +3,7 @@ from pathlib import Path
 import sys
 
 from PySide2.QtCore import QRect
+from PySide2.QtWidgets import QMessageBox
 
 
 def files_last_updated(folder):
@@ -30,3 +31,18 @@ def get_cropped_qrect(point, image, radius):
     point4 = min(image.height(), point[1] + radius)
 
     return QRect(point1, point2, point3 - point1, point4 - point2)
+
+
+def message_box(label, text, icon='NoIcon'):
+    """
+    Warning, Critical, Information, NoIcon, Question
+    :param label:
+    :param text:
+    :param icon:
+    :return:
+    """
+    mb = QMessageBox()
+    mb.setIcon(getattr(mb.icon(), icon))
+    mb.setWindowTitle(label)
+    mb.setText(text)
+    mb.exec_()

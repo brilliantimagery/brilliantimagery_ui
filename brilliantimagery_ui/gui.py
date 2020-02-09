@@ -10,7 +10,7 @@ from PySide2.QtGui import QImage, QMouseEvent, QColor
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 
 from brilliantimagery_ui.gui_mainwindow import Ui_MainWindow
-from brilliantimagery_ui.gui_utils import get_cropped_qrect
+from brilliantimagery_ui.gui_utils import files_last_updated, get_cropped_qrect, message_box
 
 
 class MainWindow(QMainWindow):
@@ -44,6 +44,64 @@ class MainWindow(QMainWindow):
         if not self.validate_selections():
             return
 
+        self.maybe_reset_misalignment_brightness()
+
+        rectangle = (min(self.point1[0], self.point2[0]), min(self.point1[1], self.point2[1]),
+                     max(self.point1[0], self.point2[0]), max(self.point1[1], self.point2[1]))
+        rectangle = [rectangle[0] / self.image.width(), rectangle[1] / self.image.height(),
+                     rectangle[2] / self.image.width(), rectangle[3] / self.image.height()]
+
+        last_modified = files_last_updated(self.sequence.path)
+        if last_modified > self.files_last_parsed:
+            self.sequence.parse_sequence()
+            self.files_last_parsed = time.time()
+
+        ramp = self.ui.ramp_checkbox.isChecked()
+        deflicker = self.ui.deflicker_checkbox.isChecked()
+        stabilize = self.ui.stabilize_checkbox.isChecked()
+        if ramp and not deflicker and not stabilize:
+            self.sequence.ramp_minus_exmpsure()
+        elif not ramp and deflicker and not stabilize:
+            self.sequence.ramp_exposure(rectangle)
+        elif not ramp and not deflicker and stabilize:
+            self.sequence.stabilize(rectangle)
+        elif ramp and deflicker and not stabilize:
+            self.sequence.ramp(rectangle)
+        elif not ramp and deflicker and stabilize:
+            self.sequence.ramp_exposure_and_stabilize(rectangle)
+        elif ramp and not deflicker and stabilize:
+            self.sequence.ramp_minus_exposure_and_stabilize(rectangle)
+        elif ramp and deflicker and stabilize:
+            self.sequence.ramp_and_stabilize(rectangle)
+
+        self.sequence.save()
+
+        if deflicker:
+            self.ui.reuse_brightness_checkbox.setChecked(True)
+        if stabilize:
+            self.ui.reuse_offsets_checkbox.setChecked(True)
+
+        self.last_points = (self.point1, self.point2)
+
+        if self.ui.notify_completion_checkbox.isChecked():
+            message_box('Done', 'All Done!', 'Information')
+
+        print('Done Processing!')
+
+    def maybe_reset_misalignment_brightness(self):
+        folder = Path(self.ui.ramp_folder_edit.text())
+        files = [f.name for f in folder.iterdir() if
+                 (folder / f).is_file() and f.suffix.lower() == '.dng']
+
+        if (self.point1, self.point2) != self.last_points:
+            self.sequence.set_misalignments({f: None for f in files})
+            self.sequence.set_brightnesses({f: None for f in files})
+        else:
+            if not self.ui.reuse_offsets_checkbox.isChecked():
+                self.sequence.set_misalignments({f: None for f in files})
+            if not self.ui.reuse_brightness_checkbox.isChecked():
+                self.sequence.set_brightnesses({f: None for f in files})
+
     def validate_selections(self):
         if self.point1 and self.point2:
             rectangle = True
@@ -51,11 +109,7 @@ class MainWindow(QMainWindow):
             rectangle = False
 
         if not self.ui.ramp_folder_edit.text():
-            mb = QMessageBox()
-            mb.setIcon(mb.Icon.Warning)
-            mb.setText('You need to specify a Sequence Folder.')
-            mb.setWindowTitle('Oops!')
-            mb.exec_()
+            message_box('Oops!', 'You need to specify a Sequence Folder.', 'Warning')
             return False
 
         ui = self.ui
@@ -69,13 +123,11 @@ class MainWindow(QMainWindow):
                                                    or ui.stabilize_checkbox.isChecked()):
             return True
 
-        mb = QMessageBox()
-        mb.setIcon(mb.Icon.Warning)
-        mb.setText("You need to specify what to do (in the Operations to Perform box) "
-                   "and what information to use (either highlight a rectangle or select "
-                   "what info to reuse)")
-        mb.setWindowTitle('Oops!')
-        mb.exec_()
+        message_box('Oops!',
+                    "You need to specify what to do (in the Operations to Perform box) "
+                    "and what information to use (either highlight a rectangle or select "
+                    "what info to reuse)",
+                    'Warning')
         return False
 
     def open_sequence(self):
