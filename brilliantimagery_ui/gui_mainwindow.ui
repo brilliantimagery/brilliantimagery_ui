@@ -387,7 +387,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>140</y>
+        <y>130</y>
         <width>211</width>
         <height>71</height>
        </rect>
@@ -406,37 +406,49 @@
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="1">
-         <widget class="QRadioButton" name="prores">
+         <widget class="QRadioButton" name="prores_ks">
           <property name="text">
            <string>ProRes</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">codec_buttons</string>
+          </attribute>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QRadioButton" name="vp9">
+         <widget class="QRadioButton" name="libvpx">
           <property name="text">
            <string>VP9</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">codec_buttons</string>
+          </attribute>
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QRadioButton" name="h264">
+         <widget class="QRadioButton" name="libx264">
           <property name="text">
            <string>H.264 (MPEG-4)</string>
           </property>
           <property name="checked">
            <bool>false</bool>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">codec_buttons</string>
+          </attribute>
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QRadioButton" name="h265">
+         <widget class="QRadioButton" name="libx265">
           <property name="text">
            <string>H.265 (MPEG-H, HEVC)</string>
           </property>
           <property name="checked">
            <bool>true</bool>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">codec_buttons</string>
+          </attribute>
          </widget>
         </item>
        </layout>
@@ -446,9 +458,9 @@
       <property name="geometry">
        <rect>
         <x>230</x>
-        <y>140</y>
+        <y>130</y>
         <width>221</width>
-        <height>41</height>
+        <height>71</height>
        </rect>
       </property>
       <property name="title">
@@ -460,10 +472,17 @@
          <x>10</x>
          <y>10</y>
          <width>211</width>
-         <height>31</height>
+         <height>61</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="frame_rate">
+          <property name="text">
+           <string>29.97</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_11">
           <property name="text">
@@ -471,10 +490,23 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="frame_rate">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_1">
+          <property name="toolTip">
+           <string>Leave blank for default value</string>
+          </property>
           <property name="text">
-           <string>29.97</string>
+           <string>Bitrate (bits/s)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="bitrate">
+          <property name="toolTip">
+           <string>Leave blank for default value</string>
+          </property>
+          <property name="text">
+           <string/>
           </property>
          </widget>
         </item>
@@ -485,7 +517,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>220</y>
+        <y>210</y>
         <width>211</width>
         <height>101</height>
        </rect>
@@ -504,62 +536,86 @@
        </property>
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="0">
-         <widget class="QRadioButton" name="p720">
+         <widget class="QRadioButton" name="_1280x720">
           <property name="text">
            <string>720p</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">resolution_buttons</string>
+          </attribute>
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QRadioButton" name="k2">
+         <widget class="QRadioButton" name="_2048x1080">
           <property name="text">
            <string>2K</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">resolution_buttons</string>
+          </attribute>
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QRadioButton" name="k4">
+         <widget class="QRadioButton" name="_3000x2000">
           <property name="text">
            <string>3K</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">resolution_buttons</string>
+          </attribute>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QRadioButton" name="k4_uhd">
+         <widget class="QRadioButton" name="_3840x2160">
           <property name="text">
            <string>4K UHD</string>
           </property>
           <property name="checked">
            <bool>true</bool>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">resolution_buttons</string>
+          </attribute>
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QRadioButton" name="dci_4k">
+         <widget class="QRadioButton" name="_4960x2160">
           <property name="text">
            <string>DCI 4K</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">resolution_buttons</string>
+          </attribute>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QRadioButton" name="p1080">
+         <widget class="QRadioButton" name="_1920x1080">
           <property name="text">
            <string>1080p</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">resolution_buttons</string>
+          </attribute>
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QRadioButton" name="k6">
+         <widget class="QRadioButton" name="_6144x3160">
           <property name="text">
            <string>6K</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">resolution_buttons</string>
+          </attribute>
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QRadioButton" name="k8">
+         <widget class="QRadioButton" name="_7680x4320">
           <property name="text">
            <string>8K</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">resolution_buttons</string>
+          </attribute>
          </widget>
         </item>
         <item row="2" column="2">
@@ -567,122 +623,9 @@
           <property name="text">
            <string>Source</string>
           </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QGroupBox" name="groupBox_5">
-      <property name="geometry">
-       <rect>
-        <x>230</x>
-        <y>190</y>
-        <width>221</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="title">
-       <string>Color Sampling</string>
-      </property>
-      <widget class="QWidget" name="horizontalLayoutWidget_5">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>211</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_6">
-        <item>
-         <widget class="QRadioButton" name="color411">
-          <property name="text">
-           <string>4:1:1</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="color422">
-          <property name="text">
-           <string>4:2:2</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="color444">
-          <property name="text">
-           <string>4:4:4</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QGroupBox" name="groupBox_6">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>330</y>
-        <width>211</width>
-        <height>61</height>
-       </rect>
-      </property>
-      <property name="title">
-       <string>Compression Quality</string>
-      </property>
-      <widget class="QWidget" name="horizontalLayoutWidget_4">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>0</y>
-         <width>201</width>
-         <height>61</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>Lo</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSlider" name="quality_slider">
-          <property name="maximum">
-           <number>4</number>
-          </property>
-          <property name="value">
-           <number>2</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="invertedAppearance">
-           <bool>false</bool>
-          </property>
-          <property name="invertedControls">
-           <bool>false</bool>
-          </property>
-          <property name="tickPosition">
-           <enum>QSlider::TicksAbove</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_10">
-          <property name="minimumSize">
-           <size>
-            <width>10</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Hi</string>
-          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">resolution_buttons</string>
+          </attribute>
          </widget>
         </item>
        </layout>
@@ -691,8 +634,8 @@
      <widget class="QGroupBox" name="groupBox_4">
       <property name="geometry">
        <rect>
-        <x>230</x>
-        <y>240</y>
+        <x>460</x>
+        <y>130</y>
         <width>221</width>
         <height>151</height>
        </rect>
@@ -717,14 +660,120 @@
      <widget class="QPushButton" name="watch_render_button">
       <property name="geometry">
        <rect>
-        <x>540</x>
-        <y>280</y>
+        <x>520</x>
+        <y>290</y>
         <width>111</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
        <string>Watch / Render</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_7">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>210</y>
+        <width>221</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Colorspace</string>
+      </property>
+      <widget class="QWidget" name="horizontalLayoutWidget_7">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>211</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <widget class="QRadioButton" name="rgb">
+          <property name="text">
+           <string>RGB</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">colorspace_buttons</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="bt709">
+          <property name="text">
+           <string>BT.709</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">colorspace_buttons</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="bt2020_cl">
+          <property name="text">
+           <string>BT.2020</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">colorspace_buttons</string>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_8">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>260</y>
+        <width>221</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Compressioin</string>
+      </property>
+      <widget class="QWidget" name="horizontalLayoutWidget_8">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>211</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <item>
+         <widget class="QCheckBox" name="lossless">
+          <property name="text">
+           <string>Lossless</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>370</y>
+        <width>671</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Note: not all attributes are available for all codecs; invalid attributes will be ignored. You may need to do some testing in order to find what works best for you and your needs</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
       </property>
      </widget>
     </widget>
@@ -854,4 +903,9 @@
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="colorspace_buttons"/>
+  <buttongroup name="resolution_buttons"/>
+  <buttongroup name="codec_buttons"/>
+ </buttongroups>
 </ui>

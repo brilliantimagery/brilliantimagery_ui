@@ -12,12 +12,18 @@ def render():
 
     writer = FFmpegWriter("E:\\Downloads\\photos\\video.mp4",
                           outputdict={
-                              '-vcodec': 'libx264',
+                              '-codec:v': 'libx264',
                               '-r': '24',
+                              '-s': '1920x1080',
+                              '-b:v': '200k'
                           })
     for file in files:
         pic = Image.open(str(folder / file))
-        pic.thumbnail((1920*2, 1080*2), Image.ANTIALIAS)
+        # pic.thumbnail((1920*2, 1080*2), Image.ANTIALIAS)
         pic = np.array(pic).astype(np.uint8)
         writer.writeFrame(pic)
     writer.close()
+
+
+if __name__ == "__main__":
+    render()
