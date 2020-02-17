@@ -12,10 +12,10 @@ def render():
 
     writer = FFmpegWriter("E:\\Downloads\\photos\\video.mp4",
                           outputdict={
-                              '-codec:v': 'libx264',
+                              '-vcodec': 'libx264',
                               '-r': '24',
                               '-s': '1920x1080',
-                              '-b:v': '200k'
+                              '-b': '200k'
                           })
     for file in files:
         pic = Image.open(str(folder / file))

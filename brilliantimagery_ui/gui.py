@@ -25,8 +25,6 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.default_ramp_folder_name = 'ramp_folder'
-        self.default_render_folder_name = 'render_folder'
         self.default_values = QSettings('BrilliantImagery', 'BrilliantImagery_UI')
 
         self.point1 = ()
@@ -37,6 +35,7 @@ class MainWindow(QMainWindow):
         self.image = None
 
         # Ramp Tab Setup
+        self.default_ramp_folder_name = 'ramp_folder'
         self.ui.ramp_folder_edit.editingFinished.connect(lambda: self.load_sequence(
             self.ui.ramp_folder_edit.text()))
         self.ui.ramp_folder_button.clicked.connect(self.open_sequence)
@@ -45,12 +44,28 @@ class MainWindow(QMainWindow):
         self.ui.ramp_button.clicked.connect(self.process_sequence)
 
         # Video Export Tab Setup
+        self.default_dng_folder_name = 'dng_folder'
+        self.default_rendered_images_folder_name = 'rendered_images_folder'
+        self.default_rendered_video_name = 'rendered_video_file'
         self.link_to_ffmpeg_calculation(self.ui.export_tab)
         self.ui.tabs.currentChanged.connect(self.update_dng_sequence_folder)
+        self.ui.dng_folder_button.clicked.connect(self.open_reference_dng_folder)
+        self.ui.dng_folder_edit.editingFinished.connect(self.sequence_stats)
+        self.ui.rendered_image_folder_button.clicked.connect(lambda: self.open_folder(
+            self.ui.rendered_image_folder_edit, self.default_rendered_images_folder_name))
+        self.ui.output_file_button.clicked.connect(lambda: self.save_file(
+            self.ui.output_file_edit, self.default_rendered_video_name, ''))
+        self.calculate_ffmpeg_input()
 
         # Image Render Tab Setup
-        self.ui.image_render_button.clicked.connect(lambda: self.open_render_image(True))
-        self.ui.image_render_edit.editingFinished.connect(lambda: self.open_render_image(False))
+        self.default_render_image_name = 'render_image'
+        self.ui.image_render_button.clicked.connect(self.render_image_w_dialog)
+        self.ui.image_render_edit.editingFinished.connect(lambda: self.render_image(
+            self.ui.rendered_image_folder_edit.text()))
+
+    def open_reference_dng_folder(self):
+        self.open_folder(self.ui.dng_folder_edit, self.default_dng_folder_name)
+        self.sequence_stats()
 
     def update_dng_sequence_folder(self):
         if self.ui.tabs.currentIndex() != 1:
@@ -74,25 +89,29 @@ class MainWindow(QMainWindow):
             return
         elif isinstance(widget, QLineEdit):
             if widget.objectName() == 'frame_rate' or widget.objectName() == 'bitrate':
-                widget.editingFinished.connect(self.calculate_ffmpeg)
+                widget.editingFinished.connect(self.calculate_ffmpeg_input)
         elif isinstance(widget, QRadioButton):
-            widget.toggled.connect(self.calculate_ffmpeg)
+            widget.toggled.connect(self.calculate_ffmpeg_input)
+            # widget.toggled.connect(lambda: self.my_print(widget))
         elif isinstance(widget, QSlider):
-            widget.valueChanged.connect(self.calculate_ffmpeg)
+            widget.valueChanged.connect(self.calculate_ffmpeg_input)
         elif isinstance(widget, QCheckBox):
-            widget.stateChanged.connect(self.calculate_ffmpeg)
+            widget.stateChanged.connect(self.calculate_ffmpeg_input)
         children = widget.children()
         if children:
             for child in children:
                 self.link_to_ffmpeg_calculation(child)
 
-    def calculate_ffmpeg(self):
+    def my_print(self, widget):
+        print('*' * 10, 'called', widget)
+
+    def calculate_ffmpeg_input(self):
         # -b: bitrate, 'default value is 200k'
         values = dict()
 
         values['-vcodec'] = self.ui.codec_buttons.checkedButton().objectName()
         values['-r'] = self.ui.frame_rate.text()
-        values['-s'] = self.ui.resolution_buttons.checkedButton().objectName().replace('_', '')
+        values['-s'] = self.ui.resolution_buttons.checkedButton().objectName().replace('res_', '')
         colorspace = self.ui.colorspace_buttons.checkedButton().objectName()
         if values['-vcodec'] == 'libvpx' and colorspace == 'bt2020_cl':
             colorspace = 'bt2020_ncl'
@@ -107,7 +126,8 @@ class MainWindow(QMainWindow):
                 and self.ui.lossless.isChecked()):
             values['-lossless'] = ''
 
-        text = str(values).replace('{', '').replace("'", '').replace(', ', '\n').replace('}', '')
+        text = str(values).replace('{', '').replace("'", '').replace(', ', '\n').replace('}', '').\
+            replace('-lossless: ', '-lossless')
         self.ui.ffmpeg_inputs_edit.setPlainText(text)
 
     def process_sequence(self):
@@ -200,14 +220,17 @@ class MainWindow(QMainWindow):
                     'Warning')
         return False
 
-    # def open_folder(self, line_edit, default, callback):
+    def open_folder(self, line_edit, default):
+        folder = line_edit.text() if line_edit.text() else self.default_values.value(default)
+        folder = QFileDialog.getExistingDirectory(self, "Open Directory", folder)
+        if not folder:
+            return
+        line_edit.setText(folder)
+        self.default_values.setValue(default, folder)
+        return folder
 
     def open_sequence(self):
-        if self.ui.ramp_folder_edit.text():
-            folder = self.ui.ramp_folder_edit.text()
-        else:
-            folder = self.default_values.value(self.default_ramp_folder_name)
-        folder = self.open_folder(self.ui.ramp_folder_edit, folder)
+        folder = self.open_folder(self.ui.ramp_folder_edit, self.default_ramp_folder_name)
         self.load_sequence(folder)
 
     def load_sequence(self, folder):
@@ -273,40 +296,50 @@ class MainWindow(QMainWindow):
 
             painter.end()
 
-    def open_folder(self, line_edit, start_location):
-        folder = QFileDialog.getExistingDirectory(self, "Open Directory", start_location)
-        if not folder:
-            return
-        line_edit.setText(folder)
-        # TODO: default should be passed in and then source location should be looked up
-        self.default_values.setValue(self.default_ramp_folder_name, folder)
-        return folder
+    def open_file(self, line_edit, default, extensions):
+        file = line_edit.text() if line_edit.text() else self.default_values.value(default)
+        file, _ = QFileDialog.getOpenFileName(self, "Open File", file, extensions)
+        line_edit.setText(file)
+        self.default_values.setValue(default, file)
+        return file
 
-    def open_render_image(self, use_dialog):
-        if self.ui.image_render_edit.text():
-            file = self.ui.image_render_edit.text()
-        else:
-            file = ''
-        if use_dialog:
-            file, _ = QFileDialog.getOpenFileName(self, "Open File", file, "(*.dng)")
+    def save_file(self, line_edit=None, default=None, extensions=None):
+        if line_edit:
+            if (file := line_edit.text()) != '':
+                pass
+            elif default:
+                file = self.default_values.value(default)
 
+        file = QFileDialog.getSaveFileName(self, 'Save File', file, extensions)[0]
+
+        if default:
+            self.default_values.setValue(default, file)
+
+        if line_edit:
+            line_edit.setText(file)
+
+    def render_image_w_dialog(self):
+        file = self.open_file(self.ui.image_render_edit,
+                              self.default_rendered_images_folder_name, "(*.dng)")
+        self.render_image(file)
+
+    def render_image(self, file):
         if not file:
             return
         path = Path(file)
         if not path.is_file() or path.suffix.lower() != '.dng':
             return
 
-        self.ui.image_render_edit.setText(file)
-
         dng = DNG(file)
         image_array = dng.get_image() * 255
         _, w, h = image_array.shape
         # This has to be self... if the image is to be reloaded
-        render_image_data = np.reshape(image_array, image_array.size, 'F').astype(np.uint8)
+        self._render_image_data = np.reshape(image_array, (image_array.size,), 'F').astype(np.uint8)
 
-        image = QImage(render_image_data, w, h, QImage.Format_RGB888)
+        image = QImage(self._render_image_data, w, h, QImage.Format_RGB888)
         image_label = QLabel()
-        image_label.setPixmap(QPixmap.fromImage(image))
+        pixmap = QPixmap.fromImage(image)
+        image_label.setPixmap(pixmap)
 
         self.ui.render_scroll_area.setWidget(image_label)
 

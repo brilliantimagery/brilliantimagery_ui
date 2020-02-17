@@ -1,9 +1,6 @@
 from pathlib import Path
 
-import numpy as np
 from PySide2 import QtCore
-from PySide2.QtCore import QPoint
-from PySide2.QtGui import QImage, QPixmap
 
 from brilliantimagery_ui.gui import MainWindow
 import pytest
@@ -25,6 +22,7 @@ def test_open_sequence_no_path_present_in_edit(qtbot, mocker, path1, dng_folder,
     open_dir = mocker.patch('PySide2.QtWidgets.QFileDialog.getExistingDirectory',
                             return_value=dng_folder)
     mocker.patch('PySide2.QtCore.QSettings.value', return_value=path1)
+    mocker.patch('PySide2.QtCore.QSettings.setValue')
     qtbot.mouseClick(widget.ui.ramp_folder_button, QtCore.Qt.LeftButton)
 
     open_dir.assert_called_once_with(widget, "Open Directory", path1)
@@ -45,6 +43,7 @@ def test_open_sequence_path_present_in_edit(qtbot, mocker, path1, dng_folder, dn
 
     open_dir = mocker.patch('PySide2.QtWidgets.QFileDialog.getExistingDirectory',
                             return_value=dng_folder)
+    mocker.patch('PySide2.QtCore.QSettings.setValue')
     qtbot.mouseClick(widget.ui.ramp_folder_button, QtCore.Qt.LeftButton)
 
     open_dir.assert_called_once_with(widget, "Open Directory", path1)

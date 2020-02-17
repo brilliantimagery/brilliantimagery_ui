@@ -19,7 +19,12 @@ def path2():
 
 @pytest.fixture
 def dng_folder():
-    yield str(Path('__file__').absolute().parent / 'tests' / 'data' / 'dngs')
+    path = Path('__file__').absolute()
+    i = 0
+    while path.name != 'brilliantimagery_ui' and i < 5:
+        path = path.parent
+        i += 1
+    yield str(path / 'tests' / 'data' / 'dngs')
 
 
 @pytest.fixture

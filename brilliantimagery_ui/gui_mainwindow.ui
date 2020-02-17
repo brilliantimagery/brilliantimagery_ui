@@ -55,7 +55,7 @@
     </property>
     <widget class="QWidget" name="ramp_tab">
      <attribute name="title">
-      <string>Ramp &amp; Stabilize</string>
+      <string>Ramp &amp;&amp; Stabilize</string>
      </attribute>
      <widget class="QLabel" name="ramp_image">
       <property name="geometry">
@@ -310,7 +310,7 @@
         </widget>
        </item>
        <item row="2" column="2">
-        <widget class="QPushButton" name="renderd_image_folder_button">
+        <widget class="QPushButton" name="rendered_image_folder_button">
          <property name="text">
           <string>Folder</string>
          </property>
@@ -536,7 +536,7 @@
        </property>
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="0">
-         <widget class="QRadioButton" name="_1280x720">
+         <widget class="QRadioButton" name="res_1280x720">
           <property name="text">
            <string>720p</string>
           </property>
@@ -546,7 +546,7 @@
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QRadioButton" name="_2048x1080">
+         <widget class="QRadioButton" name="res_2048x1080">
           <property name="text">
            <string>2K</string>
           </property>
@@ -556,7 +556,7 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QRadioButton" name="_3000x2000">
+         <widget class="QRadioButton" name="res_3000x2000">
           <property name="text">
            <string>3K</string>
           </property>
@@ -566,7 +566,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QRadioButton" name="_3840x2160">
+         <widget class="QRadioButton" name="res_3840x2160">
           <property name="text">
            <string>4K UHD</string>
           </property>
@@ -579,7 +579,7 @@
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QRadioButton" name="_4960x2160">
+         <widget class="QRadioButton" name="res_4960x2160">
           <property name="text">
            <string>DCI 4K</string>
           </property>
@@ -589,7 +589,7 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QRadioButton" name="_1920x1080">
+         <widget class="QRadioButton" name="res_1920x1080">
           <property name="text">
            <string>1080p</string>
           </property>
@@ -599,7 +599,10 @@
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QRadioButton" name="_6144x3160">
+         <widget class="QRadioButton" name="res_6144x3160">
+          <property name="toolTip">
+           <string>Not supported by H.264</string>
+          </property>
           <property name="text">
            <string>6K</string>
           </property>
@@ -609,7 +612,10 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QRadioButton" name="_7680x4320">
+         <widget class="QRadioButton" name="res_7680x4320">
+          <property name="toolTip">
+           <string>Not supported by H.264</string>
+          </property>
           <property name="text">
            <string>8K</string>
           </property>
@@ -619,7 +625,10 @@
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QRadioButton" name="source_res">
+         <widget class="QRadioButton" name="res_source">
+          <property name="toolTip">
+           <string>Note that not all codecs support all resolutions</string>
+          </property>
           <property name="text">
            <string>Source</string>
           </property>
@@ -660,14 +669,14 @@
      <widget class="QPushButton" name="watch_render_button">
       <property name="geometry">
        <rect>
-        <x>520</x>
+        <x>460</x>
         <y>290</y>
-        <width>111</width>
+        <width>101</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>Watch / Render</string>
+       <string>Watch &amp;&amp; Render</string>
       </property>
      </widget>
      <widget class="QGroupBox" name="groupBox_7">
@@ -738,7 +747,7 @@
        </rect>
       </property>
       <property name="title">
-       <string>Compressioin</string>
+       <string>Compressioin (for H.264 and VP9)</string>
       </property>
       <widget class="QWidget" name="horizontalLayoutWidget_8">
        <property name="geometry">
@@ -774,6 +783,19 @@
       </property>
       <property name="wordWrap">
        <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="render_now_button">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>290</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Render Now</string>
       </property>
      </widget>
     </widget>
