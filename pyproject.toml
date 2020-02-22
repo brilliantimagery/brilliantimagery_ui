@@ -5,12 +5,12 @@ description = ""
 authors = ["Chad DeRosier <chad.derosier@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "3.8"
+python = "3.8.1"
 pillow = "^7.0.0"
-brilliantimagery = "^0.2.0"
 scikit-video = "^1.1.11"
 numpy = "^1.18.1"
 pyside2 = "^5.14.1"
+brilliantimagery = "^0.2.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

@@ -58,3 +58,6 @@ def test_calculate_ffmpeg_input(qtbot):
                                                          '-s: 7680x4320\n' \
                                                          '-colorspace: bt2020_ncl\n-b: 600000\n' \
                                                          '-lossless'
+
+
+# def test_render_now_default_values():

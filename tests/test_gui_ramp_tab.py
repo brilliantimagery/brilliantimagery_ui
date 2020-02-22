@@ -163,7 +163,7 @@ def test_maybe_reset_misalignment_brightness_reuse(qtbot, dng_folder):
     qtbot.mouseClick(widget.ui.reuse_offsets_checkbox, QtCore.Qt.LeftButton)
     qtbot.mouseClick(widget.ui.reuse_brightness_checkbox, QtCore.Qt.LeftButton)
     folder = Path(widget.ui.ramp_folder_edit.text())
-    files = [f.name for f in folder.iterdir() if
+    files = [f.name.lower() for f in folder.iterdir() if
              (folder / f).is_file() and f.suffix.lower() == '.dng']
     widget.sequence.set_misalignments({f: 3 for f in files})
     widget.sequence.set_brightnesses({f: 3 for f in files})
